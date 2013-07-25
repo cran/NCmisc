@@ -1,0 +1,45 @@
+\name{must.use.package}
+\alias{must.use.package}
+\title{Do everything possible to load an R package.}
+\usage{
+  must.use.package(pcknms, bioC = F, ask = F, reload = F,
+    avail = F, quietly = F)
+}
+\arguments{
+  \item{pcknms}{list of packages to load/install, shouldn't
+  mix bioconductor/CRAN in one call}
+
+  \item{bioC}{whether the listed packages are from
+  bioconductor}
+
+  \item{reload}{indicates to reload the package even if
+  loaded}
+
+  \item{avail}{when bioC=FALSE, see whether pcknms are in
+  the list of available CRAN packages}
+
+  \item{ask}{whether to get the user's permission to
+  install a required package, or just go ahead and do it}
+
+  \item{quietly}{passed to library/require, display
+  installation text or not}
+}
+\value{
+  nothing, simply loads the packages specified if possible
+}
+\description{
+  Like 'require()' except it will attempt to install a
+  package if necessary, and will also deal automatically
+  with bioconductor packages too.
+}
+\examples{
+# not run : run if you are ok to install/already have these packages
+# must.use.package(c("MASS","nlme","lme4"),ask=FALSE)
+# must.use.package("limma",bioC=TRUE)
+# search() # show packages have loaded, then detach them again:
+# sapply(paste("package",c("limma","MASS","nlme","lme4"),sep=":"),detach,character.only=TRUE)
+}
+\author{
+  Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+}
+

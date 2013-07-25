@@ -1,0 +1,31 @@
+\name{spc}
+\alias{spc}
+\title{Print a character a specified number of times.}
+\usage{
+  spc(X, char = " ")
+}
+\arguments{
+  \item{X}{numeric vector of number of repeats}
+
+  \item{char}{The character to repeat (longer will be
+  shortened)}
+}
+\value{
+  returns vectors of strings of char, lengths X
+}
+\description{
+  Returns 'char' X_i number of times for each element i of
+  X. Useful for padding for alignment purposes.
+}
+\examples{
+cat(paste(spc(9),"123\\n"))
+cat(paste(spc(8),"1234\\n"))
+spc(c(1:5),".")
+}
+\author{
+  Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+}
+\seealso{
+  \code{\link{rmv.spc}}
+}
+

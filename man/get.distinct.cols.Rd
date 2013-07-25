@@ -1,0 +1,27 @@
+\name{get.distinct.cols}
+\alias{get.distinct.cols}
+\title{Return up to 22 distinct colours.}
+\usage{
+  get.distinct.cols(n = 22)
+}
+\arguments{
+  \item{n}{number of unique colours to return}
+}
+\value{
+  returns vector of n colours
+}
+\description{
+  Useful if you want to colour 22 autosomes, etc, because
+  most R colour palettes only provide 12 or fewer colours,
+  or else provide, a gradient which is not distinguishable
+  for discrete categories. Manually curated so the most
+  similar colours aren't side by side.
+}
+\examples{
+get.distinct.cols(10)
+plot(1:22,pch=19,col=get.distinct.cols(22))
+}
+\author{
+  Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+}
+

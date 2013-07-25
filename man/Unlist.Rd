@@ -1,0 +1,33 @@
+\name{Unlist}
+\alias{Unlist}
+\title{Unlist a list, starting only from a set depth.}
+\usage{
+  Unlist(obj, depth = 1)
+}
+\arguments{
+  \item{obj}{the list to unlist}
+
+  \item{depth}{skip to what layer of the list before
+  unlisting; eg.  the base unlist() function would
+  correspond to depth=0}
+}
+\value{
+  returns vectors of strings of char, lengths X
+}
+\description{
+  Allows unlisting preserving the top levels of a list. Can
+  specify the number of list depth levels to skip before
+  running unlist()
+}
+\examples{
+complex.list <- list(1,1:3,list(2,2:4,list(3,3:4,list(10))),list(4,5:7,list(3)))
+Unlist(complex.list,0) # equivalent to unlist()
+Unlist(complex.list,1) # unlist within the top level lists
+Unlist(complex.list,2) # unlist within the second level lists
+Unlist(complex.list,10) # once depth >= list-depth, no difference
+unlist(complex.list,recursive=FALSE) # not the same as any of the above
+}
+\author{
+  Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+}
+

@@ -1,0 +1,41 @@
+\name{Rfile.index}
+\alias{Rfile.index}
+\title{Create an index file for an R function file}
+\usage{
+  Rfile.index(fn, below = T, fn.out = "out.htm",
+    skip.indent = T)
+}
+\arguments{
+  \item{fn}{an R file containing functions in standard R
+  script}
+
+  \item{below}{whether to search for comment text below or
+  above the function() calls}
+
+  \item{fn.out}{optional name for the output file, else
+  will be based on the name of the input file}
+
+  \item{skip.indent}{whether to skip functions that are
+  indented, the assumption being they are functions within
+  functions}
+}
+\value{
+  creates an html file with name and description of each
+  function
+}
+\description{
+  Create a html index for an R function file by looking for
+  functions, add descriptions using comments directly next
+  to the function() command. Note that if too much code
+  other than well-formatted functions is in the file then
+  the result is likely not to be a nicely formatted index.
+}
+\examples{
+# not run:  rfile <- file.choose() # choose an R script file with functions
+# not run:  out <- Rfile.index(rfile,fn.out="temp.htm")
+# unlink("temp.htm") # run once you've inspected this file in a browser
+}
+\author{
+  Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+}
+

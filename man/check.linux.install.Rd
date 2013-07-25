@@ -1,0 +1,24 @@
+\name{check.linux.install}
+\alias{check.linux.install}
+\title{Check whether a given system command is installed (e.g, bash)}
+\usage{
+  check.linux.install(cmd = c("plink", "perl", "sed"))
+}
+\arguments{
+  \item{cmd}{list of commands to test}
+}
+\value{
+  returns true or false for each command 'cmd'
+}
+\description{
+  Tests whether a command is installed and callable by
+  system(). Will return a warning if run on windows
+}
+\examples{
+check.linux.install("ls") # should be standard
+check.linux.install(c("perl","sed","fake-cmd"))
+}
+\author{
+  Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+}
+

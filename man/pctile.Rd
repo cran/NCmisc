@@ -1,0 +1,26 @@
+\name{pctile}
+\alias{pctile}
+\title{Find data thresholds corresponding to percentiles}
+\usage{
+  pctile(dat, pc = 0.01)
+}
+\arguments{
+  \item{dat}{numeric vector of data}
+
+  \item{pc}{the percentile to seek, c(pc, 1-pc)}
+}
+\value{
+  returns the upper and lower threshold
+}
+\description{
+  Finds the top and bottom bounds corresponding to
+  percentile 'pc' of the data 'dat'.
+}
+\examples{
+pctile(rnorm(100000),.025)
+pctile(sample(100),.9)
+}
+\author{
+  Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+}
+

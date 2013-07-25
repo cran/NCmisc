@@ -1,0 +1,25 @@
+\name{standardize}
+\alias{standardize}
+\title{Convert a numeric vector to Z-scores.}
+\usage{
+  standardize(X)
+}
+\arguments{
+  \item{X}{numeric vector to standardize}
+}
+\value{
+  vector of the same length in standardised form
+}
+\description{
+  Transform a vector to z scores by subtracting its mean
+  and dividing by its standard deviation
+}
+\examples{
+x1 <- rnorm(10,100,15); x2 <- sample(10)
+print(x1) ;  standardize(x1)
+print(x2) ;  standardize(x2)
+}
+\author{
+  Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+}
+

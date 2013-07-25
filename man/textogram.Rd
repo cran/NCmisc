@@ -1,0 +1,30 @@
+\name{textogram}
+\alias{textogram}
+\title{Make an ascii histogram in the console.}
+\usage{
+  textogram(X, range = NA, ...)
+}
+\arguments{
+  \item{X}{numeric vector of data}
+
+  \item{range}{optional sub-range of X to test;
+  c(low,high)}
+
+  \item{...}{additional arguments passed to base::hist()}
+}
+\value{
+  outputs an ascii histogram to the console
+}
+\description{
+  Uses a call to base::hist(...) and uses the densities to
+  make a a text histogram in the console Particularly
+  useful when working in the terminal without graphics.
+}
+\examples{
+textogram(runif(100000))
+textogram(rnorm(10000),range=c(-3,3))
+}
+\author{
+  Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+}
+

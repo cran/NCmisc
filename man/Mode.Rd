@@ -1,0 +1,44 @@
+\name{Mode}
+\alias{Mode}
+\title{Find the mode of a vector.}
+\usage{
+  Mode(x, multi = F, warn = F)
+}
+\arguments{
+  \item{x}{The data to take the mode from. Dimensions and
+  NA's are removed if possible, strings, factors, numeric
+  all permitted}
+
+  \item{multi}{Logical, whether to return multiple modes if
+  values have equal frequency}
+
+  \item{warn}{Logical, whether to give warnings when
+  multiple values are found (if multi=FALSE)}
+}
+\value{
+  The most frequent value, or sorted set of most frequent
+  values if multi==TRUE and there are more than one.
+  Numeric if x is numeric, else as strings
+}
+\description{
+  The mode is the most common value in a series. This
+  function can return multiple values if there are equally
+  most frequent values, and can also work with non-numeric
+  types.
+}
+\examples{
+Mode(c(1,2,3,3,4,4)) # 2 values are most common, as multi=FALSE,
+# selects the last value (after sort)
+Mode(c(1,2,3,3,4,4),multi=TRUE) # same test with multi=T,
+# returns both most frequent
+Mode(matrix(1:16,ncol=4),warn=TRUE) # takes mode of the entire
+# matrix treating as a vector, but all values occur once
+Mode(c("Tom","Dick","Harry"),multi=FALSE,warn=TRUE) # selects last
+# sorted value, but warns there are multiple modes
+Mode(c("Tom","Dick","Harry"),multi=TRUE,warn=TRUE) # multi==TRUE so
+# warning is negated
+}
+\author{
+  Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+}
+
