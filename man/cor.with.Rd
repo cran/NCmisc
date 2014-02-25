@@ -1,0 +1,54 @@
+\name{cor.with}
+\alias{cor.with}
+\title{Simulate a correlated variable}
+\usage{
+  cor.with(x, r = 0.5, preserve = FALSE, mn = NA, st = NA)
+}
+\arguments{
+  \item{x}{existing variable, to which you want to simulate
+  a new correlated variable}
+
+  \item{r}{the 'expected' correlation you want to target
+  (randomness will mean that the actual correlation will
+  vary around this value)}
+
+  \item{preserve}{logical, whether to preserve the same
+  mean and standard deviation(SD) as x, for the new
+  variable}
+
+  \item{mn}{optional, set the mean for the new simulated
+  variable [must also set st if using this]}
+
+  \item{st}{optional, set the SD for the new simulated
+  variable [must also set mn if using this]}
+}
+\value{
+  return the new variable with an expected correlation of
+  'r' with x
+}
+\description{
+  Simulate a variable correlated at level 'r' with cector x
+  (of the same length). Can either 'preserve' the mean and
+  standard-deviation, leave standardizeed, or select new
+  mean 'mn' and standard deviation 'st'.
+}
+\examples{
+X <- rnorm(10,100,14)
+cor.with(X,r=.5) # create a variable correlated .5 with X
+cor(X,cor.with(X)) # check the actual correlation
+# some variability in the actual correlation, so run 1000 times:
+print(mean(replicate(1000,{cor(X,cor.with(X))})))
+cor.with(X,preserve=TRUE) # preserve original mean and standard deviation
+X[c(4,10)] <- NA # works fine with NAs, but new var will have same missing
+cor.with(X,mn=50,st=2) # specify new mean and standard deviation
+}
+\author{
+  Nicholas Cooper
+}
+\references{
+  http://www.uvm.edu/~dhowell/StatPages/More_Stuff/CorrGen.html
+}
+\seealso{
+  \code{\link{sim.cor}}
+}
+

@@ -2,8 +2,8 @@
 \alias{must.use.package}
 \title{Do everything possible to load an R package.}
 \usage{
-  must.use.package(pcknms, bioC = F, ask = F, reload = F,
-    avail = F, quietly = F)
+  must.use.package(pcknms, bioC = FALSE, ask = FALSE,
+    reload = FALSE, avail = FALSE, quietly = FALSE)
 }
 \arguments{
   \item{pcknms}{list of packages to load/install, shouldn't

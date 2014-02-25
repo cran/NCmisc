@@ -2,7 +2,7 @@
 \alias{rmv.spc}
 \title{Remove leading and trailing spaces (or other character).}
 \usage{
-  rmv.spc(str, before = T, after = T, char = " ")
+  rmv.spc(str, before = TRUE, after = TRUE, char = " ")
 }
 \arguments{
   \item{str}{character vector, may containing leading or

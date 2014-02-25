@@ -21,9 +21,9 @@
   utils::RSiteSearch()
 }
 \examples{
-rep <- "http://cran.ma.imperial.ac.uk/" # OR: rep <- getOption("repos")
-search.cran("useful",rep)
-search.cran(c("hmm","markov","hidden"),repos=rep)
+repos <- "http://cran.ma.imperial.ac.uk/" # OR: repos <- getOption("repos")
+search.cran("useful",repos)
+search.cran(c("hmm","markov","hidden"),repos=repos)
 }
 \author{
   Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}

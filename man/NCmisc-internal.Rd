@@ -1,6 +1,14 @@
 \name{NCmisc-internal}
 
 \alias{get.ext}
+\alias{suck.bytes}
+\alias{suck.mem}
+\alias{suck.cpu}
+\alias{suck.num.from.txt}
+\alias{divide.top.txt}
+\alias{make.top.tab}
+\alias{display.var}
+\alias{head2}
 
 \title{Internal NCmisc Functions}
 \description{

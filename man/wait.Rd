@@ -2,7 +2,7 @@
 \alias{wait}
 \title{Wait for a period of time.}
 \usage{
-  wait(dur, unit = "s", silent = T)
+  wait(dur, unit = "s", silent = TRUE)
 }
 \arguments{
   \item{dur}{waiting time}
@@ -20,8 +20,8 @@
   nothing). This will use 100% of 1 cpu.
 }
 \examples{
-wait(.5,silent=FALSE) # wait 0.5 seconds
-wait(0.001, "m")
+wait(.25,silent=FALSE) # wait 0.25 seconds
+wait(0.005, "m")
 wait(0.0001, "Hours", silent=FALSE)
 }
 \author{

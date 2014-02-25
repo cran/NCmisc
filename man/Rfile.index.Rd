@@ -2,8 +2,8 @@
 \alias{Rfile.index}
 \title{Create an index file for an R function file}
 \usage{
-  Rfile.index(fn, below = T, fn.out = "out.htm",
-    skip.indent = T)
+  Rfile.index(fn, below = TRUE, fn.out = "out.htm",
+    skip.indent = TRUE)
 }
 \arguments{
   \item{fn}{an R file containing functions in standard R

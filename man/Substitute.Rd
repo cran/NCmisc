@@ -1,0 +1,49 @@
+\name{Substitute}
+\alias{Substitute}
+\title{Convert objects as arguments to object names}
+\usage{
+  Substitute(x = NULL, ...)
+}
+\arguments{
+  \item{x}{compulsory, simply the first object in the list,
+  no difference to any further objects}
+
+  \item{...}{any further objects to return string names
+  for.}
+}
+\value{
+  character list of x,... object names
+}
+\description{
+  Equivalent to the base function substitute() but can do
+  any length of arguments instead of just one. Converts the
+  objects in parentheses into text arguments as if they had
+  been entered with double quote strings. The objects must
+  exist and be accessible in the environment the function
+  is called from for the function to work (same as for
+  substitute()). One application for this is to be able to
+  create functions where object arguments can be entered
+  without quotation marks (simpler), or where you want to
+  use the name of the object as well as the data in the
+  object.
+}
+\examples{
+myvar <- list(test=c(1,2,3)); var2 <- "testme"; var3 <- 10:14
+print(myvar)
+# single variable case, equivalent to base::substitute()
+print(substitute(myvar))
+print(Substitute(myvar))
+# multi variable case, substitute won't work
+Substitute(myvar,var2,var3)
+# prv() is a wrapper for preview() allowing arguments without parentheses
+# which is achieved internally by passing the arguments to Substitute()
+preview(c("myvar","var2","var3"))
+prv(myvar,var2,var3)
+}
+\author{
+  Nicholas Cooper
+}
+\seealso{
+  \code{\link{prv}}, \code{\link{preview}}
+}
+

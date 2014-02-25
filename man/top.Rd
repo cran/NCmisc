@@ -1,0 +1,56 @@
+\name{top}
+\alias{top}
+\title{Monitor CPU, RAM and Processes}
+\usage{
+  top(CPU = !Table, RAM = !Table, Table = FALSE,
+    procs = 20, mem.key = NULL, cpu.key = NULL)
+}
+\arguments{
+  \item{CPU}{logical, whether to return overall CPU usage
+  information}
+
+  \item{RAM}{logical, whether to return overall RAM usage
+  information}
+
+  \item{Table}{logical, whether to return system
+  information for separate processes. This is returned as
+  table with all of the same columns as a command line
+  'top' command. If 'Table=TRUE' is set, then the default
+  becomes not to return the overall CPU/RAM usage stats.
+  The dataframe returned will have been sorted by
+  descending memory usage.}
+
+  \item{procs}{integer, if Table=TRUE, then the maximum
+  number of processes to return (default 20)}
+
+  \item{mem.key}{character, default for Linux is 'mem' and
+  for Mac OS X, 'physmem', but if the 'top' command on your
+  system displays memory usage using a different label,
+  then enter it here (case insensitive) to override
+  defaults.}
+
+  \item{cpu.key}{character, default for Linux and Mac OS X
+  is 'cpu', but if the top command on your system displays
+  CPU usage using a different label, then enter it here.}
+}
+\value{
+  a list containing CPU and RAM usage, or with alternate
+  parameters can return stats for each process
+}
+\description{
+  This function runs the unix 'top' command and returns the
+  overall CPU and RAM usage, and optionally the table of
+  processes and resource use for each. Works only with
+  unix-based systems such as Mac OS X and Linux, where
+  'top' is installed. Default is to return CPU and RAM
+  overall stats, to get detailed stats instead, set
+  Table=TRUE.
+}
+\examples{
+# not run #  top()
+# not run #  top(Table=TRUE,proc=5)
+}
+\author{
+  Nicholas Cooper
+}
+

@@ -1,0 +1,40 @@
+\name{fakeLines}
+\alias{fakeLines}
+\title{Create fake text for testing purposes}
+\usage{
+  fakeLines(max.lines = 10, max.chars = 100,
+    pc.space = 0.35, delim = " ", can.null = TRUE)
+}
+\arguments{
+  \item{max.lines}{maxmimum number of fake lines to read}
+
+  \item{max.chars}{maximum number of characters per line}
+
+  \item{pc.space}{percentage of randomly generated
+  characters that should be a delimiter}
+
+  \item{delim}{what should the simulated delimiter be, e.g,
+  a space, comma etc. If you wish not to include such
+  either set the delimiter as "", or set pc.space=0.}
+
+  \item{can.null}{whether with probability 1/max.lines to
+  return NULL instead of any lines of text, which simulates
+  an empty file, which for testing purposes you may want to
+  be able to handle}
+}
+\value{
+  a vector of character entries up 'max.chars' long, or
+  sometimes only NULL if can.null=TRUE
+}
+\description{
+  Returns randomized input as if reading lines from a file,
+  like 'readLines()' Can be used to test i/o functions,
+  robustness.
+}
+\examples{
+fakeLines() # should produce between zero and ten lines of random text, 35\% of which are spaces
+}
+\author{
+  Nicholas Cooper
+}
+

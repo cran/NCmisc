@@ -1,0 +1,38 @@
+\name{force.percentage}
+\alias{force.percentage}
+\title{Force argument to be a percentage with length one}
+\usage{
+  force.percentage(x, default = 0.5)
+}
+\arguments{
+  \item{x}{the object to ensure is a oercentage}
+
+  \item{default}{the value to revert to if the format of x
+  is illegal}
+}
+\value{
+  the object x if already legal, first element if a vector,
+  the min or max value if x is outside the specified
+  bounds, or the value of default otherwise
+}
+\description{
+  Sometimes it is nice to be able to take a percentage as
+  an argument and not have to specify whether it should be
+  entered as a number between 0 and 100, e.g, 50 = 50%, or
+  as a decimal between 0 and 1, e.g, 0.5 = 50%. Anything
+  greater than 1 and less than 100 will be divided by 100.
+  Anything outside 0,100 will be set to 0,100 respectively.
+}
+\examples{
+# create variables of different types to show output styles #
+force.percentage(45)
+force.percentage(450)
+force.percentage(.45)
+force.percentage(-45)
+force.percentage("twenty")
+force.percentage(NA,default=0.25)
+}
+\seealso{
+  \code{\link{force.scalar}}
+}
+

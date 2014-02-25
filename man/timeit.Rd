@@ -2,7 +2,7 @@
 \alias{timeit}
 \title{Times an expression, with breakdown of time spent in each function}
 \usage{
-  timeit(expr, suppressResult = F, total.time = T)
+  timeit(expr, suppressResult = F, total.time = TRUE)
 }
 \arguments{
   \item{expr}{an expression, must take at least 1 second
@@ -30,8 +30,10 @@
   not see any simple way to avoid this limitation.
 }
 \examples{
-timeit(wait(0.1,"s") ,total.time=TRUE)
-timeit(wait(0.1,"s") ,total.time=FALSE)
+# this function writes and removes a temporary file
+# run only if ok to do this in your working directory
+#not run# timeit(wait(0.1,"s") ,total.time=TRUE)
+#not run# timeit(wait(0.1,"s") ,total.time=FALSE)
 }
 \author{
   Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}

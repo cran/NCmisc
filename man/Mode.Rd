@@ -2,7 +2,7 @@
 \alias{Mode}
 \title{Find the mode of a vector.}
 \usage{
-  Mode(x, multi = F, warn = F)
+  Mode(x, multi = FALSE, warn = FALSE)
 }
 \arguments{
   \item{x}{The data to take the mode from. Dimensions and

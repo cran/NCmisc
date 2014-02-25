@@ -1,0 +1,48 @@
+\name{prv.large}
+\alias{prv.large}
+\title{Tidy display function for matrix objects}
+\usage{
+  prv.large(largeMat, rows = 3, cols = 2, digits = 4,
+    rL = "Row#", rlab = "rownames", clab = "colnames",
+    rownums = T, ret = FALSE, warn = TRUE)
+}
+\arguments{
+  \item{largeMat}{a matrix}
+
+  \item{rows}{number of rows to display}
+
+  \item{cols}{number of columns to display}
+
+  \item{digits}{number of digits to display for numeric
+  data}
+
+  \item{rL}{row label to describe the row names/numbers,
+  e.g, row number, ID, etc}
+
+  \item{rlab}{label to describe the data rows}
+
+  \item{clab}{label to describe the data columns}
+
+  \item{rownums}{logical, whether to display rownumbers or
+  ignore them}
+
+  \item{ret}{logical, whether to return the result as a
+  formatted object, or just print to console}
+
+  \item{warn}{logical, whether to warn if the object type
+  is not supported}
+}
+\description{
+  This function prints the first and last columns and rows
+  of a matrix, and more, if desired. Allows previewing of a
+  matrix without overloading the console. Most useful when
+  data has row and column names.
+}
+\examples{
+mat <- matrix(rnorm(1000),nrow=50)
+rownames(mat) <- paste("ID",1:50,sep="")
+colnames(mat) <- paste("Var",1:20,sep="")
+prv.large(mat)
+prv.large(mat,rows=9,cols=4,digits=1,rlab="samples",clab="variables",rownums=FALSE)
+}
+

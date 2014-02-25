@@ -46,7 +46,7 @@ while(cc < max) { cc <- cc + 1; wait(0.05,"s"); loop.tracker(cc,max,start,unit="
 X <- matrix(rnorm(5000),nrow=50); max <- nrow(X); sums <- numeric(max)
 for (cc in 1:max) {
   sums[cc] <- sum(X[cc,])
-  wait(.1) # just so this trivial loop doesn't finish so quickly
+  wait(.05) # just so this trivial loop doesn't finish so quickly
   loop.tracker(cc,max, sav.obj=sums, sav.fn="temp.rda", sav.freq=5);
   if(cc==29) { warning("faked a crash at iteration 29!"); rm(sums); break }
 }
