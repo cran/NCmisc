@@ -7,8 +7,14 @@
 \alias{suck.num.from.txt}
 \alias{divide.top.txt}
 \alias{make.top.tab}
+\alias{make.divisor}
 \alias{display.var}
+\alias{cat.path}
+\alias{dir.force.slash}
+\alias{is.ch}
+\alias{rmv.ext}
 \alias{head2}
+\alias{tools_read_repositories}
 
 \title{Internal NCmisc Functions}
 \description{

@@ -1,11 +1,256 @@
 ###NAMESPACE ADDITIONS###
-# Depends: R (>= 2.10), grDevices, graphics, stats, utils
-# Imports: tools, proftools
-# Suggests:
+# Depends: R (>= 2.10), grDevices, graphics, stats, utils, reader
+# Imports: tools, proftools, BiocInstaller
+# Suggests: KernSmooth
 # importFrom(proftools, readProfileData, flatProfile)
 # importFrom(tools, toHTML)
+# importFrom(BiocInstaller, biocVersion)
 # import(grDevices, graphics, stats, utils)
 ###END NAMESPACE###
+
+  
+
+#' Create variables from a list
+#' 
+#' Places named objects in a list into the working environment as individual variables.
+#' Can be particularly helpful when you want to call a function that produces a list of
+#' multiple return variables; this gives a way to access them all at once in the environment
+#' from which the function was called.
+#' @param list list, with named objects, each element will become a named variable in
+#' the current environment
+#' @return New variables will be added to the current environment. Any already existing
+#' with the same name will be overwritten.
+#' @export
+#' @examples
+#' list.to.env(list(myChar="a string", myNum=1234, myList=list("list within a list",c(1,2,3))))
+#' print(myChar)
+#' print(myNum)
+#' print(myList)
+#' two.arg.return <- function(X) { return(list(Y=X+1,Z=X*10)) } 
+#' result <- two.arg.return(11) # function returns list with 2 variables
+#' list.to.env(result)
+#' print(Y); print(Z)
+list.to.env <- function(list) {
+  if(!is.list(list)) { stop("this function's sole parameter must be a list object")}
+  if(is.null(names(list))) { stop("list elements must be named") }
+  if(length(list)>1000) { warning("list contains over 1000 elements, this operation will crowd the workspace") }
+  for(cc in 1:length(list)) {
+    assign(x=names(list)[cc],value=list[[cc]],pos=parent.frame())
+  }
+  return(NULL)
+}
+
+  
+#' Simple representation and retrieval of Date/Time
+#'
+#' Retrieve a simple representation of date_time or just date, 
+#' for generating day/time specific file names, etc.
+#' @param sep character, separator to use for the date/time, eg, 
+#' underscore or <space> " ".
+#' @param long logical, whether to display a longer version of the
+#' date and time, or just a simple version
+#' @param time logical, whether to include the time, or just the date
+#' @export
+#' @return A string containing the date: MMMDD and optionally time HRam/pm.
+#' Or if long=TRUE, a longer representation: DAY MM DD HH.MM.SS YYYY.
+#' @examples
+#' simple.date()
+#' simple.date(" ",long=TRUE)
+#' simple.date(time=FALSE)
+simple.date <- function(sep="_",long=FALSE,time=TRUE) {
+  myt <- format(Sys.time(), "%a %b %d %X %Y")
+  if(long) {return(gsub(":",".",gsub(" ",sep,myt))) }
+  dt <- strsplit(myt,":",fixed=TRUE)[[1]][1]
+  splt <- strsplit(dt," ")[[1]]
+  tm <- as.numeric(tail(splt,1))
+  pr.tm <- head(splt,length(splt)-1)
+  pr.tm[2] <- toupper(pr.tm[2])
+  ampm <- {if(as.numeric(tm)>11) {"PM"} else {"AM"}}
+  tm <- {if(tm>12) { tm-12 } else { if(tm<1) { tm+12 } else { tm } }}
+  if(nchar(paste(pr.tm[3]))==1) { pr.tm[3] <- paste("0",pr.tm[3],sep="" ) }
+  if(!time) { out <- paste(pr.tm[-1],collapse="") } else {
+    out <- paste(paste(pr.tm[-1],collapse=""),sep,
+                 tm, ampm ,sep="") }
+  return(out)
+}
+
+
+
+
+#' Easily display fraction and percentages
+#' 
+#' For a subset 'n' and total 'N', nicely prints text n/N and/or percentage%.
+#' Often we want to display proportions and this simple function reduces the
+#' required amount of code for fraction and percentage reporting. If 
+#' insufficient digits are provided small percentage may truncate to zero.
+#' @param n numeric, the count for the subset of N (the numerator)
+#' @param N numeric, the total size of the full set (the denominator)
+#' @param digits, integer, the number of digits to display in the percentage
+#' @param pc, logical, whether to display the percentage of N that n comprises
+#' @param oo, logical, whether to display n/N as a fraction
+#' @param use.sci, logical, whether to allow scientific notation for small/large
+#' percentages.
+#' @return A string showing the fraction n/N and percentage (or just one of these)
+#' @export
+#' @examples
+#' out.of(345,12144)
+#' out.of(345,12144,pc=FALSE)
+#' out.of(3,10^6,digits=6,oo=FALSE)
+#' out.of(3,10^6,digits=6,oo=FALSE,use.sci=TRUE)
+out.of <- function(n,N=100,digits=2,pc=TRUE,oo=TRUE,use.sci=FALSE) {
+  pct <- 100*(n/N)
+  outof <- paste(n,"/",N,sep="")
+  if(use.sci) {
+    percent <- paste(round(pct,digits),"%",sep="")
+  } else {
+    percent <- paste(format(round(pct,digits),scientific=FALSE),"%",sep="")
+  }  
+  if(pc & oo) {
+    outof <- paste(outof," (",percent,")",sep="")
+  } else {
+    if(pc) { outof <- percent }
+  }
+  return(outof)
+}
+
+
+
+
+#' Extend an interval by percentage
+#' 
+#' For various reasons, such as applying windows, setting custom range limits for plots, it may 
+#' be desirable to extend an interval by a certain percentage.
+#' @param X a numeric range, should be length 2. If a longer numeric, will be coerced with range()
+#' @param pc percentage by which to extend X, can be entered in either percentage style: 0<pc<1; 
+#' or 1<pc<100
+#' @param swap logical, if TRUE, flip the extension directions if X[2]<X[1], ie, not in numerical
+#' order
+#' @param pos logical, if TRUE, make an extension in the positive direction
+#' @param neg logical, if TRUE, make an extension in the negative direction
+#' @export 
+#' @examples
+#' extend.pc(c(2,10),0.25) # extend X symmetrically
+#' extend.pc(c(2:10),0.25) # extend the range of X
+#' # the following 3 examples extend X by 1% only in the 'positive' direction
+#' extend.pc(c(25000,55000),.01,neg=FALSE) # standard positive extension
+#' extend.pc(c(55000,25000),.01,neg=FALSE) # ranges in reverse order, not swapped
+#' extend.pc(c(55000,25000),.01,neg=FALSE,swap=TRUE) # ranges in reverse order, swapped
+extend.pc <- function(X,pc=.5,pos=TRUE,neg=TRUE,swap=FALSE) {
+  if(!is.numeric(X)) { stop("X must be numeric") }
+  if(length(X)==0) { stop("X was empty") }
+  if(length(X)==1) { X <- c(X,X); warning("X was length=1, extended by repeating X twice") }
+  if(length(X)>2) { X <- range(X) } #; warning("X was length>2, coerced using X <-range(X)") }
+  pc <- force.percentage(pc)
+  yn <- yp <- abs(X[2]-X[1])*pc
+  if(!pos) { yp <- 0 }; if(!neg) { yn <- 0 }
+  if(swap) {
+    # flip the extension directions if X[2]<X[1], ie, not in numerical order
+    if(X[1]>X[2]) { temp <- yn; yn <- yp; yp <- temp }
+  }
+  return(c(X[1]-yn,X[2]+yp))
+}
+
+
+#' Draw a scatterplot with a fit line
+#'
+#' Drawing a fit line usually requires some manual steps requiring several lines of code,
+#' such as ensuring the data is sorted by x, and for some functions doesn't contain missing values.
+#' This function takes care of these steps and automatically adds a loess fitline, or non-linear 
+#' fitline. The type of scatter defaults to 'plot', but other scatter plot functions can be 
+#' specified, such as graphics::smoothScatter(), for example. If 'file' is specifed, will 
+#' automatically plot to a pdf of that name.
+#' @param x data for the horizontal axis (independent variable)
+#' @param y data for the vertical axis (dependent variable)
+#' @param file file name for pdf export, leave as NULL if simply plotting to the GUI. File 
+#' extension will be added automatically if missing
+#' @param loess logical, if TRUE, fit using loess(), else use a polynomial fit
+#' @param span numeric scalar, argument passed to the 'span' parameter of loess(), see ?loess for details
+#' @param scatter function, by default is graphics::plot(), but any scatter-plot function of the 
+#' form F(x,y,...) can be used, for example graphics::smoothScatter().
+#' @param ylim numeric range for y axis, argument passed to plot(), see ?plot.
+#' @param return.vectors logical, if TRUE, do not plot anything, just return the x and y coordinates
+#' of the fit line as a list of vectors, x and y.
+#' @param fit.col colour of the fit line
+#' @param fit.lwd width of the fit line
+#' @param fit.lty type of the fit line
+#' @param fit.leg whether to include an automatic legend for the fit line (will alter the y-limits
+#' to fit)
+#' @param fit.r2 logical, whether to display r squared of the fit in the fit legend
+#' @param ... further arguments to the plot function specified by 'scatter', e.g, 'main', 'xlab', etc
+#' @export
+#' @return if file is a character argument, plots data x,y to a file, else will generate a plot to
+#' the current plotting environment/GUI. The display of the x,y points defaults to 'plot', but 
+#' alternate scatter plot functions can be specified, such as graphics::smoothScatter() which used 
+#' density smoothing, for example. Also, another option is to set return.vectors=TRUE, and then
+#' the coordinates of the fit line will be returned, and no plot will be produced.
+#' @examples
+#' library(NCmisc)
+#' require(KernSmooth)
+#' DD <- sim.cor(1000,4) # create a simulated, correlated dataset
+#' loess.scatter(DD[,3],DD[,4],loess=FALSE,bty="n",pch=".",cex=2)
+#' loess.scatter(DD[,3],DD[,4],scatter=smoothScatter)
+#' xy <- loess.scatter(DD[,3],DD[,4],return.vectors=TRUE)
+#' prv(xy) # preview the vectors produced
+loess.scatter <- function(x,y,file=NULL,loess=TRUE,span=0.75,scatter=plot,...,ylim=NULL,return.vectors=FALSE,
+                          fit.col="red",fit.lwd=2,fit.lty="solid",fit.leg=TRUE,fit.r2=TRUE) {
+  if(length(Dim(x))!=1 | length(Dim(y))!=1) { stop("x and y must be vectors") }
+  if(length(x)<1 | length(y)<1) { warning("x/y must have positive length"); return(NULL) }
+  if(!is.numeric(x) | !is.numeric(y)) { stop("x and y must be numeric") }
+  if(length(x)!=length(y)) { stop("x and y must be vectors of the same length") }
+  y1 <- y[order(x)]
+  x1 <- x[order(x)]
+  missing.either <- is.na(x1) | is.na(y1)
+  if(length(which(missing.either))>0) { y1 <- y1[!missing.either]; x1 <- x1[!missing.either] }
+  if(length(y1)<5) { 
+    do.fit=F; warning("not enough points remain to generate plot with fit-line") 
+  } else { do.fit <- T }
+  if(do.fit) {
+    if(!loess) {
+      # if(all(x1>0)) {
+      #   fit <- "non-linear"
+      #   lo <- lm(y1~x1+sqrt(x1)+log(x1))
+      # } else {
+      fit <- "polynomial"
+      lo <- lm(y1~x1 + (x1^2) + (x1^3) + (x1^4))
+      # }
+    } else {
+      fit <- "loess"
+      lo <- loess(y1~x1,span=span)
+    }
+    y2 <- predict(lo)
+    if(fit.r2) {
+      r2 <- round(cor(y1,y2,use="pairwise.complete"),3)
+      leg.txt <- paste(fit,"fit line, r2 =",r2)
+    } else {
+      leg.txt <- paste(fit,"fit line")
+    }
+  }
+  if(!return.vectors) {
+    if(is.character(file)) { fnm <- cat.path("",fn=file[1],ext="pdf"); pdf(fnm) }
+    if(fit.leg & do.fit) {
+      y.range <- range(y1)
+      ## this section of code allows a custom 'ylim' setting to override the internal ylim
+      if(is.numeric(ylim) & length(ylim)==2) {
+        if(ylim[1]>y.range[1] | ylim[2]<y.range[2]) { warning("ylim will truncate the y vector in the plot") }
+        y.range <- ylim
+      } 
+      y.lims <- extend.pc(y.range,pc=0.25,neg=F)
+      y.lims <- extend.pc(y.lims,pc=0.1,pos=F)
+    } else { y.lims <- NULL }
+    
+    y <- y1; x <- x1 # ensures default x,y labels are x,y
+    scatter(x,y,...,ylim=y.lims)
+    if(do.fit) { lines(x1,y2,col=fit.col,lwd=fit.lwd,lty=fit.lty) }
+    if(fit.leg & do.fit) { legend("topright",legend=leg.txt, lty=fit.lty, col=fit.col, lwd=fit.lwd, bty="n") }
+    if(is.character(file)) { cat("wrote file",file,"\n"); dev.off() }
+  } else {
+    return(list(x=x1,y=y2))
+  }
+}
+
+  
+
+
 
 #' Return up to 22 distinct colours.
 #' 
@@ -239,7 +484,12 @@ headl <- function (x, n = 6, skip = 20, skip2 = 10, ind = "", ind2 = "  ")
 #' For unknown types, leaves unchanged with a warning.
 #'
 #' @param X The object to remove NAs, any vector, matrix or data.frame
-#' @return Vector minus NA's, or the matrix/data.frame minus NA rows
+#' @return Vector minus NA's, or the matrix/data.frame minus NA rows.
+#' If it's a character vector then values of "NA" will also be excluded
+#' in addition to values = NA, so be careful if "NA" is a valid value
+#' of your character vector. Note that "NA" values occur when 'paste(...,NA,...)' is
+#' applied to a vector of any type, whereas 'as.character(...,NA,...)'
+#' avoids this.
 #' @export 
 #' @author Nicholas Cooper \email{nick.cooper@@cimr.cam.ac.uk}
 #' @examples
@@ -264,7 +514,14 @@ narm <- function(X) {
           return(X[!is.na(X)])
         }
       } else {
-        return(X[!is.na(X)])  
+        if(is.character(X)) {
+          ## paste(NA) = "NA", whereas as.character(NA) = NA , this fixes the "NA"'s ##
+          out <- X[!is.na(X)]
+          out <- out[out!="NA"]
+          return(out)
+        } else {
+          return(X[!is.na(X)])            
+        }
       }
     } else {
       warning("unsupported type, X unchanged"); return(X)
@@ -406,36 +663,116 @@ rmv.spc <- function(str,before=TRUE,after=TRUE,char=" ") {
 
 #' Estimate the memory required for an object.
 #'
-#' An existing object or just dim/length of a proposed object
+#' Can enter an existing object or just the dimensions or total length of a proposed object.
+#' The estimate is based on the object being of numeric type. Integers use half the space
+#' of numeric, raw() use 1/8th of the space. Factors and characters can vary, although
+#' factors will always use less than numeric, and character variables may easily use up
+#' to twice as much depending on the length [nchar()] of each element.
 #'
-#' @param dat either a matrix/dataframe, or else dims; c(nrow,ncol)
-#' @return returns minimum memory requirement in GB (numeric, scalar)
+#' @param dat either a vector/matrix/dataframe object, or else up to 10 dimensions of such an
+#' object, or a potential object, i.e; c(nrow,ncol). If entering an object directly,
+#' you can leave out the 'integer' and 'raw' arguments as these will be detected from
+#' the object type. Any set of dimensions >10 will be assumed to be a vector, so
+#' if you have such an object, better to submit the total product [base::prod()].
+#' @param integer if the object or potential object is integer or logical type,
+#' set this argument to TRUE, if this is TRUE, the parameter 'RAW' will
+#' be ignored; integer and logical types use 1/2 of the memory of numeric types
+#' @param raw if the object or potential object is of 'raw' type,
+#' set this argument to TRUE, note that if 'integer' is TRUE, this parameter 'RAW' will
+#' be ignored; raw types use 1/8 of the memory of numeric types
+#' @param unit the storage units to use for the result, ie, "gb", "mb","kb", "b" for
+#' gigabytes, megabytes, kilobytes, or bytes respectively.
+#' @param add.unit logical, whether to append the unit being used to the result,
+#' making the result character type instead of numeric.
+#' @return returns the minimum memory requirement to store and object of the specified
+#' size, as a numeric scalar, in gigabytes (default) or else using the units specified by 'unit',
+#' and if add.unit = TRUE, then the result will be character type instead of numeric, with
+#' the units appended.
 #' @export 
 #' @author Nicholas Cooper \email{nick.cooper@@cimr.cam.ac.uk}
 #' @examples
-#' estimate.memory(matrix(rnorm(100),nrow=10))
-#' estimate.memory(c(10^6,10^4))
-#' estimate.memory(5.4*10^8)
-estimate.memory <- function(dat)
+#' myMatrix <- matrix(rnorm(100),nrow=10)
+#' myVec <- sample(1:1000)
+#' estimate.memory(myMatrix,unit="bytes") # enter a matrix object
+#' estimate.memory(myVec,unit="kb" ,add.unit=TRUE) # enter a vector object
+#' estimate.memory(c(10,10,10,10,10),unit="kb") # 5 dimensional array
+#' estimate.memory(c(10^6,10^4), add.unit=TRUE) # large matrix
+#' estimate.memory(5.4*10^8, add.unit=TRUE)  # entering argument as # total cells, rather than dims
+#' estimate.memory(5.4*10^8, integer=TRUE, add.unit=TRUE)
+#' estimate.memory(5.4*10^8, raw=TRUE, add.unit=TRUE)
+#' estimate.memory(5.4*10^8, TRUE, TRUE, add.unit=TRUE) #  'integer' overrides 'raw'
+estimate.memory <- function(dat, integer=FALSE, raw=FALSE, unit=c("gb","mb","kb","b"), add.unit=FALSE)
 {
   # based on a numeric object, estimate the minimum memory requirement
-  if(!is.null(dim(dat))) { dimz <- dim(dat) } else { dimz <- dat }
+  cells.per.gb <- 2^27  # size of double() resulting in ~1GB of memory use by R 2.15
+  divisor <- make.divisor(unit,"unit")
+  multiplier <- 10^9/divisor
+  if(!is.null(dim(dat))) { 
+    memory.estimate <- as.numeric(object.size(dat))
+    memory.estimate <- memory.estimate/divisor
+    if(add.unit) { memory.estimate <- paste(memory.estimate,unit[1]) }
+    return(memory.estimate)
+  } else { dimz <- dat }
+  dimz <- narm(dimz)
   if(length(dimz)==1) { dimz[2] <- 1 }
-  if(length(dimz)==2) {
-    rws <- dimz[1]; cls <- dimz[2]
-    cells.per.gb <- 2^27  # size of double() resulting in ~1GB of memory use by R 2.15
-    memory.estimate <- as.double((as.double(rws)*as.double(cls))/cells.per.gb)
+  if(length(dimz)>1 & length(dimz)<11 & is.numeric(dimz)) {
+    total.size <- as.double(1)
+    for(cc in 1:length(dimz)) { total.size <- as.double(total.size*as.double(dimz[cc])) }
+    memory.estimate <- as.double(as.double(total.size)/cells.per.gb)
+    memory.estimate <- memory.estimate*multiplier
+    if(integer) { memory.estimate <- memory.estimate/2 } else { if(raw) { memory.estimate <- memory.estimate/8 } }
+    if(add.unit) { memory.estimate <- paste(round(memory.estimate,6),unit[1]) }
     return(memory.estimate)
   } else {
-    warning("tried to estimate memory for object which is neither a pair of dimension sizes or a dataframe/matrix") 
+    # guessing this is a vector
+    if(!is.list(dimz) & is.vector(dimz)) { 
+      LL <- length(dimz) 
+      return(estimate.memory(LL, integer=integer, raw=raw, unit=unit, add.unit=add.unit))
+    } else {
+      warning("tried to estimate memory for object which is neither a vector, pair of dimension sizes or a dataframe/matrix") 
+    }
   }
 }
 
 
+#internal
+make.divisor <- function(unit=c("kb","mb","gb","b"), par.name="unit") {
+  valid.units <- c("k","m","g","b")
+  unit <- tolower(unit[1]);
+  unit <- substr(unit,1,1)
+  if(!unit %in% valid.units) { warning("invalid entry to ",par.name," defaulting to kilobytes") ; unit <- "k" }
+  divisor <- switch(unit,k=1000,m=10^6, g=10^9, b=1)
+  return(divisor)
+}
+
+
+#' Summary of RAM footprint for all R objects in the current session.
+#' Not my function, but taken from an R-Help response by Elizabeth Purdom,
+#' at Berkeley. Simply applies the function 'object.size' to the objects
+#' in ls(). Also very similar to an example in the 'Help' for the 
+#' utils::object.size() function.
+#' @param unit default is to display "kb", but you can also choose
+#' "b"=bytes, "mb"= megabyte, or "gb" = gigabytes. Only the first
+#' letter is used, and is not case sensitive, so enter units how you
+#' like.
+#' @return a list of object names with memory usage in bytes
+#' @export
+#' @examples
+#' memory.summary() # shows memory used by all objects in the current session in kb
+#' memory.summary("mb") # change units to megabytes
+memory.summary <- function(unit=c("kb","mb","gb","b")) {
+  divisor <- make.divisor(unit,"unit")
+  out <- sapply(ls(envir=parent.frame(n = 1)),function(x){object.size(get(x))/divisor})
+  if(is.atomic(out)) {
+    out <- sort(out)
+  } 
+  return(out)
+}
+
 #' Wait for a period of time.
 #' 
 #' Waits a number of hours minutes or seconds (doing nothing).
-#' This will use 100% of 1 cpu.
+#' Note that this 'waiting' will use 100% of 1 cpu.
 #'
 #' @param dur waiting time
 #' @param unit time units h/m/s, seconds are the default
@@ -470,7 +807,10 @@ wait <- function(dur,unit="s",silent=TRUE) {
 #' Useful for identifying which functions are taking the
 #' most time. This procedure will return an error unless
 #' expr takes more than ~0.1 seconds to evaluate. I 
-#' could not see any simple way to avoid this limitation.
+#' could not see any simple way to avoid this limitation. Occassionally
+#' other errors are produced for no apparent reason which are due
+#' to issues within the proftools package that are out of my
+#' control.
 #' 
 #' @param expr an expression, must take at least 1 second (roughly)
 #' @param suppressResult logical, if true, will return timing 
@@ -661,7 +1001,10 @@ pad.left <- function(X, char=" ", numdigits=NA)
 #' 
 #' Like 'require()' except it will attempt to install a package if
 #' necessary, and will also deal automatically with bioconductor
-#' packages too.
+#' packages too. Useful if you wish to share code with people who
+#' may not have the same libraries as you, you can include a call to
+#' this function which will simply load the library if present, or
+#' else install, then load, if they do not have it.
 #'
 #' @param pcknms list of packages to load/install, shouldn't mix 
 #'  bioconductor/CRAN in one call
@@ -690,7 +1033,8 @@ must.use.package <- function(pcknms,bioC=FALSE,ask=FALSE,reload=FALSE,avail=FALS
   # to force their version of a function with a duplicate name
   if(!bioC) { 
     repos <- getOption("repos")
-    if(any(repos=="@CRAN@")) { repos <- "http://cran.ma.imperial.ac.uk/" }
+    if(any(repos=="@CRAN@" | repos=="")) { repos <- getRepositories(1) }
+    if(is.null(repos) | is.na(repos)) { repos <- getRepositories(1) }
     if(avail) {
       goty <- getOption("pkgType"); 
       av.pk <- available.packages(type=goty,
@@ -725,14 +1069,22 @@ must.use.package <- function(pcknms,bioC=FALSE,ask=FALSE,reload=FALSE,avail=FALS
       }
       if(ans=="yes") {
         if(bioC) {
-          biocLite <- function(x) { print("please load biocLite function from http://bioconductor.org/biocLite.R") }
-          source("http://bioconductor.org/biocLite.R") # biocLite() should now be replaced
-          biocLite(nxt.pck)
-          suppressWarnings(checklib(nxt.pck,character.only=TRUE,warn.conflicts=FALSE,quietly=quietly))
+          source("http://bioconductor.org/biocLite.R",local=TRUE) # biocLite() should now be replaced
+          if(!exists("biocLite",mode="function")) {
+            biocLite <- function(x,...) { 
+              cat("please load biocLite function from http://bioconductor.org/biocLite.R and install",nxt.pck,"manually") 
+            } 
+          }
+          repos <- getOption("repos")
+          if(any(repos=="@CRAN@" | repos=="")) { repos <- getRepositories(1) }
+          if(is.null(repos) | is.na(repos)) { repos <- getRepositories(1) }
+          biocLite(nxt.pck,siteRepos=repos)
+          suppressWarnings(worked <- checklib(nxt.pck,character.only=TRUE,warn.conflicts=FALSE,quietly=quietly))
         } else {
           install.packages(nxt.pck,repos=repos,dependencies=TRUE); 
-          suppressWarnings(checklib(nxt.pck,character.only=TRUE,warn.conflicts=FALSE,quietly=quietly)) 
+          suppressWarnings(worked <- checklib(nxt.pck,character.only=TRUE,warn.conflicts=FALSE,quietly=quietly)) 
         }
+        if(!worked) { warning("automated installation of required package: ",nxt.pck," failed") }
       } else {
         warning("please manually install package ",nxt.pck," to continue")
       }
@@ -748,24 +1100,35 @@ must.use.package <- function(pcknms,bioC=FALSE,ask=FALSE,reload=FALSE,avail=FALS
 #' Further searching can be done using utils::RSiteSearch()
 #'
 #' @param txt text to search for, a character vector, not case-sensitive
-#' @param repos repository (CRAN mirror) to use, "" defaults to getOption("repos")
+#' @param repos repository(s) (CRAN mirror) to use, "" defaults to getOption("repos")
+#' @param all.repos logical, if TRUE, then use all available repositories from getRepositories()
 #' @return list of hits for each keyword (txt)
 #' @export 
 #' @author Nicholas Cooper \email{nick.cooper@@cimr.cam.ac.uk}
 #' @examples
 #' repos <- "http://cran.ma.imperial.ac.uk/" # OR: repos <- getOption("repos")
+#' # setRepositories(ind=1:2) # for the session will by default search bioconductor packages too
 #' search.cran("useful",repos)
 #' search.cran(c("hmm","markov","hidden"),repos=repos)
-search.cran <- function(txt,repos="") {
+#' search.cran(c("snpStats","genoset","limma"),all.repos=TRUE)
+search.cran <- function(txt,repos="",all.repos=FALSE) {
   goty <- getOption("pkgType"); 
-  if(repos=="") { repos <- getOption("repos") }
+  if(all.repos) {
+    repos <- getRepositories() # use all available
+  }
+  if(all(repos=="")) { 
+    repos <- getOption("repos") 
+  }
+  if(any(repos=="@CRAN@")) { repos <- "http://cran.ma.imperial.ac.uk/" }
   av.pk <- available.packages(type=goty,
            contrib.url(repos=repos, type=goty))
   if(is.matrix(av.pk)) { 
     if("Package" %in% colnames(av.pk)) {
       av.pk <- av.pk[,"Package"]; dim(av.pk) <- NULL
     } else { av.pk <- av.pk[[1]] }
-  } else { warning("lookup did not return table with header 'Package'") }
+  } else { 
+    warning("lookup did not return table with header 'Package'")
+  }
   if(is.character(av.pk) & is.character(txt)) {
     if(!is.null(names(av.pk))) { names(av.pk) <- NULL }
     if(length(txt)>0) {
@@ -778,6 +1141,99 @@ search.cran <- function(txt,repos="") {
     warning("txt must be character, and must be online to search for available.packages()")
   }
   return(out)
+}
+
+
+#' Detect all available R repositories.
+#' 
+#' In addition to the default CRAN repository, there are other repositories such
+#' as R-Forge, Omegahat, and bioConductor (which is split in to software, annotation,
+#' experiments and extras). This function allows you to retrieve which are available.
+#' This function complements (and takes code from) utils::setRepositories(), which
+#' will just set, not return which are available, but see there for more information
+#' about how this works. Detecting the available repositories can be useful to precede
+#' a call to setRepositories, and allows you to utilise these repositories without
+#' calling setRepositories (which is hard to reverse). This function can be used to
+#' expand the search space of the function search.cran() to include bioconductor packages.
+#' @param ind index, same as for 'setRepositories', if NULL this function returns all available
+#' repositories, or if an index, returns a subset.
+#' @param table logical, if TRUE, return a table of information, else just return the URLs, 
+#' which are the required input for the 'repos' argument for relevant functions, 
+#' e.g, available.packages() or search.cran()
+#' @return list of repositories with URLS, note that it is the URL that works best for
+#' use for passing a value for 'repos' to various functions.
+#' @export 
+#' @author Nicholas Cooper \email{nick.cooper@@cimr.cam.ac.uk}
+#' @examples
+#' repos <- "http://cran.ma.imperial.ac.uk/" # OR: repos <- getOption("repos")
+#' getRepositories(table=TRUE) # shows all available
+#' getRepositories(2:5,FALSE) # returns index for all bioconductor repositories (on my system at least)
+#' search.cran("genoset",repos=getRepositories(1)) # does not find this bioconductor package on CRAN
+#' search.cran("genoset",repos=getRepositories()) # should now, because all repositories are used
+getRepositories <- function(ind = NULL,table=FALSE) {
+  p <- file.path(Sys.getenv("HOME"), ".R", "repositories")
+  if (!file.exists(p)) 
+    p <- file.path(R.home("etc"), "repositories")
+  a <- tools_read_repositories(p)  ## had to hack this function together as internal ::: to tools package
+  pkgType <- getOption("pkgType")
+  if (pkgType == "both") 
+    pkgType <- .Platform$pkgType
+  if (length(grep("^mac\\.binary", pkgType))) 
+    pkgType <- "mac.binary"
+  thisType <- a[[pkgType]]
+  a <- a[thisType, 1L:3L]
+  repos <- getOption("repos")
+  if ("CRAN" %in% row.names(a) && !is.na(CRAN <- repos["CRAN"])) 
+    a["CRAN", "URL"] <- CRAN
+  a[(a[["URL"]] %in% repos), "default"] <- TRUE
+  new <- !(repos %in% a[["URL"]])
+  if (any(new)) {
+    aa <- names(repos[new])
+    if (is.null(aa)) 
+      aa <- rep("", length(repos[new]))
+    aa[aa == ""] <- repos[new][aa == ""]
+    newa <- data.frame(menu_name = aa, URL = repos[new], 
+                       default = TRUE)
+    row.names(newa) <- aa
+    a <- rbind(a, newa)
+  }
+  if(is.numeric(ind)) { 
+    ind[ind<1] <- 1; ind[ind>nrow(a)] <- nrow(a); ind <- unique(ind)
+    a <- (a[ind,]) 
+  } 
+  if(table){
+    return(a)
+  } else {
+    return(a[,2])
+  }
+}
+
+
+
+# internal function stolen from 'tools'
+tools_read_repositories <- function (file) 
+{
+  # try to replicate the constant 'tools:::.BioC_version_associated_with_R_version'
+  get.bioc.version <- function() {
+    biocVers <- tryCatch({
+      BiocInstaller::biocVersion() # recent BiocInstaller
+    }, error=function(...) {         # no / older BiocInstaller
+      numeric_version(Sys.getenv("R_BIOC_VERSION", "2.13"))
+    })
+    return(biocVers)
+  }
+  tools_expand_BioC_repository_URLs <- function (x) 
+  {
+    x <- sub("%bm", as.character(getOption("BioC_mirror", "http://www.bioconductor.org")), 
+             x, fixed = TRUE)
+    sub("%v", as.character(get.bioc.version()), 
+        x, fixed = TRUE)
+  }
+  db <- utils::read.delim(file, header = TRUE, comment.char = "#", 
+                          colClasses = c(rep.int("character", 3L), rep.int("logical", 
+                                                                           4L)))
+  db[, "URL"] <- tools_expand_BioC_repository_URLs(db[, "URL"])
+  return(db)
 }
 
 
@@ -912,6 +1368,7 @@ Rfile.index <- function(fn,below=TRUE,fn.out="out.htm", skip.indent=TRUE)
   fil.cont <- sapply(fn.list,paste,collapse="\n")
   #return(fil.cont)
   write.table(fil.cont,file=fn.out,quote=F,col.names=F)
+  cat("wrote html index to: ",fn.out,"\n")
   return(fn.list)
 }
 
@@ -1105,6 +1562,11 @@ Substitute <- function(x=NULL,...) {
 #' prv() is the same as preview() except it can take objects without using double quotes
 #' and has no 'labels' command (and doesn't need one). If expressions are entered rather
 #' than variable names, then prv() will attempt to pass the arguments to preview().
+#' prv() assumes that the variable(s) to report originate from the environment calling
+#' prv(), and if not found there, then it will search through all accessible environments
+#' starting with the global environment, and then will report the first instance found,
+#' which in exceptional circumstances (be warned) may not be the instance you intended
+#' to retrieve.
 #' @param ... series of variable(s) to report, separated by commas, which will trigger
 #'  automatic labelling of the variable name
 #' @param counts a list of array index values; so if calling during a counting loop, the
@@ -1132,10 +1594,10 @@ prv <- function(...,counts=NULL) {
   if(is(txt)[1]=="simpleError") { 
     #warning("not a function name")
     varlist <- list(...)
-    sapply(varlist,preview)
+    sapply(varlist,preview,prv.call=TRUE)
     return(NULL)
   }
-  return(preview(varlist,labels=NULL,counts=counts))
+  return(preview(varlist,labels=NULL,counts=counts,prv.call=TRUE))
 }
 
 
@@ -1189,7 +1651,9 @@ display.var <- function(val,label,cnts=NULL) {
   }
   dv <- Dim(val)
   if(is.numeric(dv)) { if(all(dv==1)) {
-    cat(label,": ",val," (",typ,", ",paste(Dim(val),collapse="*"),")",sep=""); return(invisible())
+    if(is.vector(val)) {
+      cat(label,": ",val," (",typ,", ",paste(Dim(val),collapse="*"),")",sep=""); return(invisible())
+    }
   } }
   if(is(val)[1]=="list") {
     cat(label," (",typ,", ",paste(Dim(val),collapse="*"),")\n",sep=""); print(headl(val)); return(invisible())
@@ -1251,6 +1715,10 @@ display.var <- function(val,label,cnts=NULL) {
 #'  best to use assume.char=FALSE, otherwise the search for alternative environments might not happen.
 #'  Note that in most cases the automatic detection of the input should understand what you want, regardless
 #'  of the value of assume.char.
+#' @param prv.call It is recommended to always leave this argument as FALSE when calling preview()
+#' directly. If set to TRUE, it will first search 2 generations back for the parent frame, instead 
+#' of one, as it will assume that the variable(s) to preview are not directly called by preview(),
+#' but through a wrapper for preview, such as prv().
 #' @seealso \code{\link{Dim}} 
 #' @export
 #' @examples
@@ -1270,7 +1738,7 @@ display.var <- function(val,label,cnts=NULL) {
 #'  for (dd in 1:4) { preview("testvar4",counts=list(cc,dd)) }}
 #'
 #' for (dd in 1:3) { preview("testvar5",counts=list(dd=dd)) }
-preview <- function(varlist,labels=NULL,counts=NULL,assume.char=FALSE) {
+preview <- function(varlist,labels=NULL,counts=NULL,assume.char=FALSE, prv.call=FALSE) {
   ## for debugging, simplify code to print vars you are checking
   lab <- varlist
   if(is.character(varlist) & (length(labels)<length(varlist))) {
@@ -1314,7 +1782,8 @@ preview <- function(varlist,labels=NULL,counts=NULL,assume.char=FALSE) {
     }
     return(invisible())
   }
-  ENVIR <- parent.frame()
+  if(prv.call) { gens <- 2 } else { gens <- 1 }
+  ENVIR <- parent.frame(n=gens)
   for(cc in 1:length(lab)) {
     label <- lab[cc]
     #print(sys.parent())
@@ -1902,17 +2371,19 @@ suck.bytes <- function(tot1,GB=TRUE) {
 #'  to search CRAN and see whether the package(s) even exist on CRAN.
 #' @param repos repository to use if package is not loaded and cran.check=TRUE,
 #'  if NULL, will attempt to use the repository in getOptions("repos") or will
-#'  default to the imperial.ac.uk mirror.
+#'  default to the imperial.ac.uk mirror. Otherwise the default is to use
+#'  all available repositories from getRepositories()
 #' @return logical TRUE or FALSE whether the whole list of packages are available
 #' @export
 #' @author Nicholas Cooper 
 #' @examples
-#' repos <- "http://cran.ma.imperial.ac.uk/"
-#' packages.loaded("NCmisc","reader",repos=repos)
-#' packages.loaded(c("bigmisc","nonsenseFailTxt"),repos=repos)
-#' packages.loaded(c("bigmisc","nonsenseFailTxt"),cran.check=FALSE)
+#' packages.loaded("NCmisc","reader")
+#' packages.loaded(c("bigpca","nonsenseFailTxt")) # both not found, as second not real
+#' packages.loaded(c("bigpca","nonsenseFailTxt"),cran.check=FALSE) # hide warning
 #' packages.loaded() # no argument means all loaded packages are listed
-packages.loaded <- function(pcks="",...,cran.check=TRUE,repos=NULL) {
+#' packages.loaded("snpStats",repos=getRepositories(1)) # doesn't find the bioconductor package on CRAN
+#' packages.loaded("snpStats",repos=getRepositories()) # now it can find it by using all repositories
+packages.loaded <- function(pcks="",...,cran.check=TRUE,repos=getRepositories()) {
   more <- c(...); if(length(more)>0) { pcks <- c(pcks,paste(more)) }
   if(!is.character(pcks)) { stop("must enter package names as character strings") }
   pt <- "package:"; pkgset <- gsub(pt,"",search()[grep(pt,search(),fixed=TRUE)])
@@ -1931,4 +2402,150 @@ packages.loaded <- function(pcks="",...,cran.check=TRUE,repos=NULL) {
 }
 
 
+#' Split a text file into multiple parts
+#' 
+#' Wrapper for the bash command 'split' that can separate a text file into multiple 
+#' roughly equal sized parts. This function removes the need to remember syntax and
+#' suffixes of the bash command
+#' @param fn character, file name of the text file to split, if the file is an imcompatible format
+#'  the linux command should return an error message to the console
+#' @param size integer, the maximum number of lines for the split parts of the file produced
+#' @param same.dir logical, whether the resulting files should be moved to the same
+#'  directory as the original file, or simply left in the working directory [getwd()]
+#' @param verbose logical, whether to report the resulting file names to the console
+#' @param suf character, suffix for the split files, default is 'part', the original file
+#'  extension will be appended after this suffix
+#' @export
+#' @return returns the list of file names produced (including path)
+#' @author Nicholas Cooper 
+#' @examples
+#' file.name <- "myfile.txt"
+#' writeLines(fakeLines(max.lines=1000),con=file.name)
+#' new.files <- file.split(file.name,size=50)
+#' unlink(new.files); unlink(file.name)
+file.split <- function(fn,size=50000,same.dir=FALSE,verbose=TRUE,suf="part") {
+  if(!file.exists(fn)) { stop("file",fn,"did not exist")}
+  if(!is.numeric(size)) { stop("size must be numeric") }
+  if(!check.linux.install("split")) { stop("command could not run as your system did not have the 'split' command installed")}
+  size <- as.integer(round(size))
+  FN <- basename(fn)
+  EXT <- get.ext(fn)
+  DIR <- dirname(fn)
+  if(!same.dir) { DIR <- getwd() }
+  file.out <- paste(rmv.ext(FN),ext=suf,sep="_")
+  cmd <- paste0("split -d -l ",size," ",fn," ",file.out)
+  st <- proc.time()[3]
+  jj <- suppressWarnings(suppressMessages(system(cmd,intern = TRUE, ignore.stderr = TRUE)))
+  tot <- proc.time()[3]-st
+  if(tot>3) {
+    cat("command '",cmd,"' was run using bash\n",sep="")
+  }
+  new.filez <- list.files(pattern=file.out)
+  if(length(new.filez)<1) { stop("no split part files produced, operation failed") }
+  tt <-  new.filez %in% cat.path("",new.filez,ext=EXT)
+  if(any(tt)) {
+    # files from a previous run may already be in the directory already with an extension
+    new.filez <- new.filez[-which(tt)]
+  }
+  new.fnz <- cat.path(DIR,new.filez,ext=EXT)
+  for (dd in 1:length(new.filez)) {
+    system(paste0("mv ",new.filez[dd]," ",new.fnz[dd]))
+  }
+  if(verbose) {
+    cat("split ",fn," into ",length(new.filez)," parts:\n\n  ",paste(new.fnz,collapse="\n  "),"\n",sep="")
+  }
+  return(new.fnz)
+}
 
+
+#INTERNAL
+## COPY FROM READER, SO NCMISC DOESN'T DEPEND ON READER
+rmv.ext <- function(fn=NULL,only.known=TRUE,more.known=NULL,print.known=FALSE) {
+  # remove file extension from a filename character string
+  known.ext <- c("TXT","RDATA","TAB","DAT","CSV","VCF","GCM","BIM","MAP","FAM",
+                 "PFB","SH","R","CPP","H","DOC","DOCX","XLS","XLSX","PDF","JPG",
+                 "BMP","PNG","TAR","GZ","CNV","PL","PY","ZIP","ORG","RDA","DSC","BCK",
+                 "ABW","HTM","HTML",toupper(more.known))
+  if(is.null(fn)) { 
+    if(print.known) {
+      return(known.ext)
+    } else {
+      warning("couldn't remove extension, not a character()"); return(fn) 
+    }
+  } else {
+    if (all(is.na(fn))) { warning("couldn't remove extension, all values were NA"); return(fn) }
+  }
+  if(print.known) { cat("known file extensions:\n"); print(known.ext) }
+  if(!is.character(fn)) { warning("couldn't remove extension, not a character()"); return(fn) }
+  rmv.one <- function(X,known.ext) {
+    file.segs <- strsplit(paste(X),".",fixed=TRUE)[[1]]
+    lss <- length(file.segs)
+    if (lss>1) { 
+      if(only.known){
+        if(toupper(file.segs[lss]) %in% known.ext) {
+          out <- paste(file.segs[-lss],collapse=".") 
+        } else { 
+          out <- X
+        }
+      } else {
+        out <- paste(file.segs[-lss],collapse=".") 
+      }
+    } else {
+      out <- X 
+    }
+  }
+  return(sapply(fn,rmv.one,known.ext=known.ext))
+}
+
+#INTERNAL
+## COPY FROM READER, SO NCMISC DOESN'T DEPEND ON READER
+cat.path <- function(dir="",fn,pref="",suf="",ext="",must.exist=FALSE) 
+{
+  dir.ch <- .Platform$file.sep
+  if(is.list(fn) & is.ch(fn)) { fn <- unlist(fn) } #; 
+  if(length(dir)>1) { dir <- dir[1]; cat("only first dir was used\n") }
+  if(length(ext)>1) { ext <- ext[1]; cat("only first extension was used\n") }
+  if(length(grep(dir.ch,fn))>0) {
+    dir <- dirname(fn)  #split into dir and fn if fn has /'s
+    fn <- basename(fn)
+  }
+  dir <- dir.force.slash(dir)
+  if(ext!="") {
+    #make sure ext includes the dot
+    if(substr(ext,1,1)!=".")   { ext <- paste(".",ext,sep="") }
+    #if ext is already built into suffix or filename, remove it from there
+    fn <- rmv.ext(paste(fn))
+    suf <- rmv.ext(paste(suf))
+  }
+  location <- paste(dir,pref,fn,suf,ext,sep="")
+  if(any(!file.exists(location)) & must.exist) {
+    warn <- paste("required file",location,"not found!")
+    stop(warn)
+  }
+  return(location)
+}
+
+#INTERNAL
+## COPY FROM READER, SO NCMISC DOESN'T DEPEND ON READER
+#' Internal function used by cat.path
+dir.force.slash <- function(dir) {
+  # make sure 'dir' directory specification ends in a / character
+  if(!is.null(dim(dir))) { stop("dir should be a vector") }
+  dir <- paste(dir)
+  dir.ch <- .Platform$file.sep
+  the.test <- (dir!="" & substr(dir,nchar(dir),nchar(dir))!=dir.ch)
+  dir[the.test] <- paste(dir[the.test],dir.ch,sep="")
+  return(dir)
+}
+
+
+#INTERNAL
+## COPY FROM READER, SO NCMISC DOESN'T DEPEND ON READER
+#' Internal function to assess whether data is a character or list of characters
+is.ch <- function(x) { 
+  # is function for character() or list of characters
+  if(is.null(x)) { return(FALSE) }
+  pt1 <- is.character(x)
+  if(!pt1 & is.list(x)) { pt2 <- all(sapply(x,is.ch)) } else { pt2 <- pt1 }
+  return(as.logical(pt1 | pt2))
+}

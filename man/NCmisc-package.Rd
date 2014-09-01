@@ -15,8 +15,8 @@ A set of handy functions. Includes: versatile one line progress bar, one
 \tabular{ll}{
 Package: \tab NCmisc\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
-Date: \tab 2014-02-25\cr
+Version: \tab 1.1.2\cr
+Date: \tab 2014-09-01\cr
 License: \tab GPL (>= 2)\cr
 }
 A package of general purpose functions that might save time or help tidy up code. 
@@ -47,16 +47,21 @@ List of key functions:
  \item{\emph{Dim }}{ same as dim() function but works for more objects, including vectors }
  \item{\emph{estimate.memory }}{ Estimate the memory required for an object}
  \item{\emph{exists.not.function }}{ same as exists() function but ignores functions }
+ \item{\emph{extend.pc }}{ Extend an interval by percentage}
  \item{\emph{fakeLines }}{ Create randomized lines of text for testing}
  \item{\emph{force.percentage }}{ Force argument to be a decimal percentage}
  \item{\emph{force.scalar }}{ Force argument to be a scalar}
  \item{\emph{get.distinct.cols }}{ Return up to 22 distinct colours}
+ \item{\emph{getRepositories }}{ Return list of available repositories}
  \item{\emph{headl }}{ A good way to preview large lists}
  \item{\emph{Header }}{ Print heading text with a border}
+ \item{\emph{list.to.env }}{ Inserts new variables in current environment from a named list}
+ \item{\emph{loess.scatter }}{ Draw a scatterplot with a fit line}
  \item{\emph{loop.tracker }}{ Creates a progess bar within a loop with only 1 line}
  \item{\emph{Mode }}{ Find the mode(s) of a vector}
  \item{\emph{must.use.package }}{ Do everything possible to load an R package}
  \item{\emph{narm }}{ Return an object with missing values removed}
+ \item{\emph{out.of }}{ Simplify outputting fractions/percentages}
  \item{\emph{packages.loaded }}{ quietly test whether packages are loaded without using require }
  \item{\emph{pad.left }}{ Print a vector with appropriate padding so each has equal char length}
  \item{\emph{pctile }}{ Find data thresholds corresponding to percentiles}
@@ -67,6 +72,7 @@ List of key functions:
  \item{\emph{rmv.spc }}{ Remove leading and trailing spaces (or other character)}
  \item{\emph{search.cran }}{ Search all CRAN packages for those containing keyword(s)}
  \item{\emph{sim.cor }}{ simulate a correlated dataset}
+ \item{\emph{simple.date }}{ generate a string with compact summary of date/time }
  \item{\emph{spc }}{ Print a character a specified number of times}
  \item{\emph{standardize }}{ Convert a numeric vector to Z-scores}
  \item{\emph{Substitute }}{ multivariable version of substitute (base)}
@@ -94,7 +100,7 @@ Nicholas Cooper <nick.cooper@cimr.cam.ac.uk>
 
 }
 \examples{
-#text histogram
+#text histogram suited to working from a console without GUI graphics
 textogram(rnorm(10000),range=c(-3,3))
 # wait 0.2 seconds
 wait(0.2,silent=FALSE) 
@@ -115,11 +121,10 @@ search.cran("misc",repos="http://cran.ma.imperial.ac.uk/")
 # simulate a correlated dataset
 corDat <- sim.cor(200,5)
 cor(corDat) # show correlation matrix
-prv(corDat) # show preview of matrix
+prv(corDat) # show compact preview of matrix
 # Dim() versus dim()
 Dim(1:10); dim(1:10)
 # check whether package is loaded (when not required or dependency)
-repos <- "http://cran.ma.imperial.ac.uk/" # or repos <- getOption("repos")
-packages.loaded("bigmemory",repos=repos)
+packages.loaded("bigmemory")
 }
 
