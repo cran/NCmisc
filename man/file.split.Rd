@@ -29,10 +29,12 @@ roughly equal sized parts. This function removes the need to remember syntax and
 suffixes of the bash command
 }
 \examples{
+orig.dir <- getwd(); setwd(tempdir()); # move to temporary dir
 file.name <- "myfile.txt"
 writeLines(fakeLines(max.lines=1000),con=file.name)
 new.files <- file.split(file.name,size=50)
 unlink(new.files); unlink(file.name)
+setwd(orig.dir) # reset working dir to original
 }
 \author{
 Nicholas Cooper

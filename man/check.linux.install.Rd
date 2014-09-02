@@ -3,20 +3,23 @@
 \alias{check.linux.install}
 \title{Check whether a given system command is installed (e.g, bash)}
 \usage{
-check.linux.install(cmd = c("plink", "perl", "sed"))
+check.linux.install(cmd = c("plink", "perl", "sed"), linux.mode = FALSE)
 }
 \arguments{
-\item{cmd}{list of commands to test}
+\item{cmd}{character vector of commands to test}
+
+\item{linux.mode}{logical, alternate way of command testing that only works on linux and
+mac OS X, to turn this on, set to TRUE.}
 }
 \value{
-returns true or false for each command 'cmd'
+returns true or false for each command in 'cmd'
 }
 \description{
 Tests whether a command is installed and callable by system().
 Will return a warning if run on windows
 }
 \examples{
-check.linux.install("ls") # should be standard
+check.linux.install("R") # should be standard
 check.linux.install(c("perl","sed","fake-cmd"))
 }
 \author{

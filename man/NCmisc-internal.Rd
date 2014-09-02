@@ -11,6 +11,7 @@
 \alias{display.var}
 \alias{cat.path}
 \alias{dir.force.slash}
+\alias{file.split.windows}
 \alias{is.ch}
 \alias{rmv.ext}
 \alias{head2}

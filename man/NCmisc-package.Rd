@@ -15,8 +15,8 @@ A set of handy functions. Includes: versatile one line progress bar, one
 \tabular{ll}{
 Package: \tab NCmisc\cr
 Type: \tab Package\cr
-Version: \tab 1.1.2\cr
-Date: \tab 2014-09-01\cr
+Version: \tab 1.1.3\cr
+Date: \tab 2014-09-02\cr
 License: \tab GPL (>= 2)\cr
 }
 A package of general purpose functions that might save time or help tidy up code. 
