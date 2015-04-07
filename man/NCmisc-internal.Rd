@@ -16,6 +16,7 @@
 \alias{rmv.ext}
 \alias{head2}
 \alias{tools_read_repositories}
+\alias{check.bio}
 
 \title{Internal NCmisc Functions}
 \description{

@@ -3,20 +3,20 @@
 \alias{NCmisc}
 \docType{package}
 \title{
-Miscellaneous one line functions
+Miscellaneous Functions for Creating Adaptive Functions and Scripts
 }
 \description{
-A set of handy functions. Includes: versatile one line progress bar, one 
- line function timer with detailed output, time delay function, text histogram, object 
- preview, CRAN package search, simpler package installer, Linux command install check, 
- a flexible Mode function, top function, simulation of correlated data, and more
+A set of handy functions. Includes a versatile one line progress bar, one 
+line function timer with detailed output, time delay function, text histogram, object 
+preview, CRAN package search, simpler package installer, Linux command install check, 
+a flexible Mode function, top function, simulation of correlated data, and more.
 }
 \details{
 \tabular{ll}{
 Package: \tab NCmisc\cr
 Type: \tab Package\cr
-Version: \tab 1.1.3\cr
-Date: \tab 2014-09-02\cr
+Version: \tab 1.1.4\cr
+Date: \tab 2015-04-07\cr
 License: \tab GPL (>= 2)\cr
 }
 A package of general purpose functions that might save time or help tidy up code. 
@@ -43,8 +43,10 @@ to track the progress of loops (called with only 1 line of code), with the
 List of key functions:
 \itemize{
  \item{\emph{check.linux.install }}{ Check whether a given system command is installed (e.g, bash)}
+ \item{\emph{comify }}{ Function to add commas for large numbers}
  \item{\emph{cor.with }}{ simulate a variable with a specified correlation to an existing variable}
  \item{\emph{Dim }}{ same as dim() function but works for more objects, including vectors }
+ \item{\emph{dup.pairs }}{ Obtain an ordered index of all instances of values with duplicates}
  \item{\emph{estimate.memory }}{ Estimate the memory required for an object}
  \item{\emph{exists.not.function }}{ same as exists() function but ignores functions }
  \item{\emph{extend.pc }}{ Extend an interval by percentage}
@@ -53,8 +55,10 @@ List of key functions:
  \item{\emph{force.scalar }}{ Force argument to be a scalar}
  \item{\emph{get.distinct.cols }}{ Return up to 22 distinct colours}
  \item{\emph{getRepositories }}{ Return list of available repositories}
+ \item{\emph{has.method }}{ Determine whether a function can be applied to an S4 class/object}
  \item{\emph{headl }}{ A good way to preview large lists}
  \item{\emph{Header }}{ Print heading text with a border}
+ \item{\emph{list.functions.in.file }}{ Show all functions used in an R script file, by package}
  \item{\emph{list.to.env }}{ Inserts new variables in current environment from a named list}
  \item{\emph{loess.scatter }}{ Draw a scatterplot with a fit line}
  \item{\emph{loop.tracker }}{ Creates a progess bar within a loop with only 1 line}
@@ -62,9 +66,11 @@ List of key functions:
  \item{\emph{must.use.package }}{ Do everything possible to load an R package}
  \item{\emph{narm }}{ Return an object with missing values removed}
  \item{\emph{out.of }}{ Simplify outputting fractions/percentages}
+ \item{\emph{p.to.Z }}{ Convert p-values to Z-scores}
  \item{\emph{packages.loaded }}{ quietly test whether packages are loaded without using require }
  \item{\emph{pad.left }}{ Print a vector with appropriate padding so each has equal char length}
  \item{\emph{pctile }}{ Find data thresholds corresponding to percentiles}
+ \item{\emph{ppa }}{ Posterior probability for p-values}
  \item{\emph{preview }}{ same as prv, but enter arguments as strings}
  \item{\emph{prv.large }}{ tidy representation for large matrices/data.frames}
  \item{\emph{prv }}{ compact preview of objects (more complete than 'print')}
@@ -83,6 +89,8 @@ List of key functions:
  \item{\emph{top }}{ report on CPU and memory usage, overall or by process }
  \item{\emph{Unlist }}{ Unlist a list, starting only from a set depth}
  \item{\emph{wait }}{ Wait for a period of time}
+ \item{\emph{which.outlier }}{ Return indexes of univariate outliers}
+ \item{\emph{Z.to.p }}{ Convert Z-scores to p-values}
 }
 }
 \author{

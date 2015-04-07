@@ -1,14 +1,316 @@
 ###NAMESPACE ADDITIONS###
 # Depends: R (>= 2.10), grDevices, graphics, stats, utils, reader
-# Imports: tools, proftools, BiocInstaller
-# Suggests: KernSmooth
+# Imports: tools, proftools, plyr
+# Suggests: KernSmooth, BiocInstaller, Matrix
 # importFrom(proftools, readProfileData, flatProfile)
 # importFrom(tools, toHTML)
-# importFrom(BiocInstaller, biocVersion)
 # import(grDevices, graphics, stats, utils)
 ###END NAMESPACE###
 
-  
+# importFrom(dplyr, filter)
+
+
+## add check.bio() to internals list
+# no longer want to: importFrom(BiocInstaller, biocVersion)
+
+
+# 7 new not in index - NEW! - 
+
+
+#' Determine whether a function can be applied to an S4 class/object
+#' 
+#' Wrapper for 'showMethods', allows easy testing whether a function
+#' (can be specified as a string, or the actual function itself (FUN)) can be
+#' applied to a specific object or class of objects (CLASS)
+#' @param FUN the function to test, can be specified as a string, or the actual function itself
+#' @param CLASS  a specific object or a class of objects specified by a string, e.g, "GRanges"
+#' @param false.if.error logical, the default value is FALSE, in which case an error is returned
+#' when FUN is not an S4 generic function. If this parameter is set to TRUE, 'FALSE' will
+#' be returned with a warning instead of an error.
+#' @param ... additional arguments to showMethods(), e.g, 'where' to specify the environment
+#' @export
+#' @return returns logical (TRUE/FALSE), or if the function is not S4 will return an error,
+#' although this could potentially be because the function's package has not been loaded.
+#' @examples
+#' require(Matrix); require(methods)
+#' has.method("t","dgeMatrix") # t() is the transpose method for a dgeMatrix object
+#' has.method(t,"dgeMatrix") # also works without quotes for the method
+#' m.example <- as(matrix(rnorm(100),ncol=5),"dgeMatrix")
+#' has.method(t, m.example) # works with an instance of an object type too
+#' has.method("band", m.example) # band is a function for a 'denseMatrix' but not 'dgeMatrix'
+#' ## not run # has.method("notAFunction","GRanges") # should return error
+#' has.method("notAFunction","GRanges",TRUE) # should return FALSE and a warning
+has.method <- function(FUN,CLASS, false.if.error=FALSE, ...) {
+  if(!is.character(CLASS)) { CLASS <- class(CLASS) }
+  if(!is.character(FUN) & !is.function(FUN)) { 
+    if(false.if.error) {
+      warning("FUN should be an R function, as a string or function, returning 'FALSE'")
+      return(FALSE)
+    } else {
+      stop("FUN must be an R function, as a string or function") 
+    }
+  }
+  test <- showMethods(FUN,classes=CLASS,printTo=FALSE,...)
+  if(length(grep("not an S4 generic function",test))>0) {
+    if(false.if.error) {
+      warning("'",FUN,"' was not an S4 generic function or required package not loaded, returning 'FALSE'")
+      return(FALSE)
+    } else {
+      stop("'",FUN,"' was not an S4 generic function or required package not loaded")
+    }
+  }
+  return(!(length(grep("No methods",test))>0))
+}
+
+
+#' Function to add commas for large numbers
+#' 
+#' Often for nice presentation of genomic locations it is helpful
+#' to insert commas every 3 digits when numbers are large. This function
+#' makes it simple and allows specification of digits if a decimal number
+#' is in use.
+#' @param x a vector of numbers, either as character, integer or numeric form
+#' @param digits integer, if decimal numbers are in use, how many digits to display, 
+#' same as input to base::round()
+#' @return returns a character vector with commas inserted every 3 digits
+#' @export
+#' @examples
+#' comify("23432")
+#' comify(x=c(1,25,306,999,1000,43434,732454,65372345326))
+#' comify(23432.123456)
+#' comify(23432.123456,digits=0)
+comify <- function(x,digits=2) {
+  if(length(Dim(x))>1) { stop("x must be a vector") }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           if(length(x)>1) { return(sapply(x, comify, digits=digits)) }
+  x <- round(as.numeric(x),digits=digits)
+  x <- (paste(x)); dec <- ""
+  if(any(grep(".",x))) {
+    x.plus.dp <- strsplit(x,".",fixed=TRUE)[[1]]
+    if(length(x.plus.dp)>2) { stop("x contained invalid decimal point(s)") }
+    xx <- x.plus.dp[1]
+    if(length(x.plus.dp)==2) { dec <- paste(".",x.plus.dp[2],sep="") }
+  } else { xx <- x }
+  splt <- strsplit(xx,"")[[1]]
+  nm <- rev(splt)
+  cnt <- 0; new <- NULL
+  LL <- length(nm)
+  for (cc in 1:LL) {
+    new <- c(nm[cc],new)
+    cnt <- cnt+1
+    if(cnt>2 & cc!=LL) { new <- c(",",new); cnt <- 0 }
+  }
+  return(paste(paste(new,collapse=""),dec,sep=""))
+}
+
+
+
+#' Convert p-values to Z-scores
+#' 
+#' Simple conversion of two-tailed p-values to Z-scores. Written
+#' in a way that allows maximum precision for small p-values.
+#' @param p p-values (between 0 and 1), numeric, scalar, vector or matrix, 
+#' or other types coercible using as.numeric()
+#' @return Z scores with the same dimension as the input
+#' @export
+#' @author Nicholas Cooper \email{nick.cooper@@cimr.cam.ac.uk}
+#' @seealso \code{\link{Z.to.p}}
+#' @examples
+#' p.to.Z(0.0001)
+#' p.to.Z("5E-8")
+#' p.to.Z(c(".05",".01",".005"))
+#' p.to.Z(matrix(runif(16),nrow=4))
+p.to.Z <- function(p) { 
+  if(!is.numeric(p)) { p <- as.numeric(p) }
+  if(!is.numeric(p)) { stop("p was not coercible to numeric type") }
+  ll <- length(which(p<0 | p>1))
+  if(ll>0) { warning(ll, " invalid p-values set to NA"); p[p<0 | p>1] <- NA }
+  O <- qnorm((p/2),F)
+  O[!is.finite(O)] <- NA
+  return(-O) 
+}
+
+#' Convert Z-scores to p-values
+#' 
+#' Simple conversion of Z-scores to two-tailed p-values. Written
+#' in a way that allows maximum precision for small p-values.
+#' @param Z Z score, numeric, scalar, vector or matrix, or other types coercible
+#'  using as.numeric()
+#' @param warn logical, whether to give a warning for very low p-values when
+#' precision limits are exceeded.
+#' @return p-valuues with the same dimension as the input
+#' @export
+#' @author Nicholas Cooper \email{nick.cooper@@cimr.cam.ac.uk}
+#' @seealso \code{\link{p.to.Z}}
+#' @examples
+#' Z.to.p("1.96")
+#' Z.to.p(p.to.Z(0.0001))
+#' Z.to.p(37, TRUE)
+#' Z.to.p(39, TRUE) # maximum precision exceeded, warnings on
+#' Z.to.p(39) # maximum precision exceeded, warnings off
+Z.to.p <- function(Z, warn=FALSE) {
+  if(!is.numeric(Z)) { Z <- as.numeric(Z) }
+  if(!is.numeric(Z)) { stop("Z was not coercible to numeric type") }
+  if(any(abs(Z)>=38) & warn) { warning("maximum precision exceeded, p < 10^-300") }
+  O <- 2*pnorm(-abs(Z))
+  O[!is.finite(O)] <- NA
+  return(O) 
+}
+
+
+#' Posterior probability of association function
+#'
+#' Estimate the probability of your hypothesis being true,
+#' given the observed p-value and a prior probability of
+#' the hypothesis being true.
+#' @param p p-value you want to test [p<0.367], or 'bayes factor'
+#' @param prior prior odds for the hypothesis (Ha) being tested
+#' @param BF logical, set to TRUE if you have entered a bayes factor
+#' as 'p' rather than a p-value
+#' @param quiet logical, whether to display verbose information for
+#' calculation
+#' @return prints calculations, then returns the posterior 
+#' probability of association given the observed p-value 
+#' under the specified prior
+#' @export
+#' @references
+#' Equations 1, 2 from
+#' http://www.readcube.com/articles/10.1038/nrg2615
+#' Equations 2, 3 from
+#' http://www.tandfonline.com/doi/pdf/10.1198/000313001300339950
+#' @examples
+#' ps <- rep(c(.05,.01),3)
+#' prs <- rep(c(.05,.50,.90),each=2)
+#' mapply(ps,prs,FUN=ppa)  # replicate Nuzzo 2014 table
+#' # try with bayes factors
+#' ppa(BF=3,prior=.9)
+#' ppa(BF=10,prior=.5)
+ppa <- function(p=.05, prior=.5, BF=NULL, quiet=TRUE) {
+  if(any(p<=0 | p>=(1/exp(1)))) { stop("invalid p value") }
+  if(any(prior<=0 | prior>=(1))) { stop("invalid prior") }
+  if(is.null(BF)) { 
+    # calculate bayes factors from p, if BF not entered
+    if(!quiet) { cat("\np value:",p,"with prior:",prior,"\n") }
+    BF <- (-exp(1)*(p)*log(p) )^(-1)
+    # NB: ^invert BF so in terms of % support for Ha 
+  } else { 
+    if(!quiet) { cat("\nprior:",prior,"with ") }
+    if(any(BF<0)) { stop("invalid bayes factor (BF)") }
+  }
+  if(!quiet) { cat("bayes factor:",BF,"\n") }
+  P0 <- (prior/(1-prior)) * (BF) 
+  if(!quiet) { cat("posterior odds = bayes factor * H1/H0 prior:",P0,"\n") }
+  ppa <- (P0/(1+P0)) 
+  if(!quiet) { cat("posterior probability of association:",ppa,"\n") }
+  return(ppa)
+}
+
+
+
+#' Return vector indexes of statistical univariate outliers
+#'
+#' Performs simplistic outlier detection and returns indexes for outliers.
+#' Acts like the which() function, return indices of elements of a vector
+#' satisfying the condition, which by default are outliers exceeding 2 SD
+#' above or below the mean. However, the threshold can be specified, only
+#' high or low values can be considered outliers, and percentile and interquartile
+#' range thresholds can also be used.
+#'
+#' @param x numeric, or coercible, the vector to test for outliers
+#' @param thr numeric, threshold for cutoff, e.g, when method="sd", standard deviations,
+#' when 'iq', interquartile ranges (thr=1.5 is most typical here), or when 'pc', you might
+#' select the extreme 1\%, 5\%, etc.
+#' @param method character, one of "sd","iq" or "pc", selecting whether to test for outliers
+#' by standard deviation, interquartile range, or percentile.
+#' @param high logical, whether to test for outliers greater than the mean
+#' @param low logical, whether to test for outliers less than the mean
+#' @return indexes of the vector x that are outliers according to either
+#' a SD cutoff, interquartile range, or percentile threshold, above (high) and/or
+#' below (low) the mean/median.
+#' @export
+#' @examples
+#' test.vec <- rnorm(200)
+#' summary(test.vec)
+#' ii <- which.outlier(test.vec) # 2 SD outliers
+#' prv(ii); vals <- test.vec[ii]; prv(vals)
+#' ii <- which.outlier(test.vec,1.5,"iq") # e.g, 'stars' on a box-plot
+#' prv(ii)
+#' ii <- which.outlier(test.vec,5,"pc",low=FALSE) # only outliers >mean
+#' prv(ii)
+which.outlier <- function(x, thr=2, method=c("sd","iq","pc"), high=TRUE, low=TRUE) {
+  if(!is.numeric(x)) { x <- as.numeric(x) }
+  if(!is.numeric(thr)) { stop("thr must be numeric") }
+  X <- x
+  #  x <- X
+  X <- narm(X)
+  if(!is.numeric(x)) { stop("x must be numeric, or coercible to numeric") }
+  X <- X[is.finite(X)]
+  if(length(X)>1) {
+    method <- substr(tolower(method),1,2)[1]
+    if(!method %in% c("sd","iq","pc")) { stop("invalid method, must be sd [std dev], iq [interquartile range], or pc [percentile]") }
+    if(method=="sd") {
+      stat <- sd(X,na.rm=T)
+      hi.thr <- mean(X,na.rm=T) + stat*thr
+      lo.thr <- mean(X,na.rm=T) - stat*thr
+    } else {
+      if(method=="iq") {
+        sl <- summary(X)
+        stat <- (sl[5]-sl[2])
+        hi.thr <- median(X,na.rm=T) + stat*thr
+        lo.thr <- median(X,na.rm=T) - stat*thr
+      } else {
+        stat <- pctile(X,pc=force.percentage(thr))
+        hi.thr <- stat[2] ; lo.thr <- stat[1]
+      }
+    }
+    if(high) {
+      outz <- X[X>hi.thr]
+    } else { outz <- NULL }
+    if(low) {
+      outz <- unique(c(outz,X[X<lo.thr]))
+    }
+    outz <- which(x %in% outz) # make sure indexes include the NA, Inf values
+    return(outz)
+  } else {
+    warning("outlier detection requires more than 1 datapoint")
+    return(numeric(0))
+  }
+}
+
+
+
+#' Obtain an index of all instances of values with duplicates (ordered)
+#' 
+#' The standard 'duplicated' function, called with which(duplicated(x)) will 
+#' only return the indexes of the extra values, not the first instances. For instance
+#' in the sequence: A,B,A,C,D,B,E; it would return: 3,6. This function will also
+#' return the first instances, so in this example would give: 1,3,2,6 [note it
+#' will also be ordered]. This index can be helpful for diagnosis if duplicates 
+#' are unexpected, for instance in a data.frame, and you wish to compare the differences
+#' between the rows with the duplicate values occuring. Also, duplicate values are sorted
+#' to be together in the listing, which can help for manual troubleshooting of undesired
+#' duplicates.
+#' @param x a vector that you wish to extract duplicates from
+#' @return vector of indices of which values in 'x' are duplicates (including
+#' the first observed value in pairs, or sets of >2), ordered by set, then
+#' by appearance in x.
+#' @export
+#' @examples
+#' set <- c(1,1,2,2,3,4,5,6,2,2,2,2,12,1,3,3,1)
+#' dup.pairs(set) # shows the indexes (ordered) of duplicated values
+#' set[dup.pairs(set)] # shows the values that were duplicated (only 1's, 2's and 3's)
+dup.pairs <- function(x) {
+    dx <- duplicated(x)
+    other.dups <- which(dx)
+    not.and.first <- which(!dx)
+    ind.dups <- not.and.first[which(x[not.and.first] %in% x[other.dups])]
+    xo <- x[other.dups]
+    vc <- vector()
+    for (cc in 1:length(ind.dups)) {
+      vc <- c(vc,ind.dups[cc],other.dups[which(xo %in% x[ind.dups[cc]])])
+    }
+    return(vc)
+}
+
 
 #' Create variables from a list
 #' 
@@ -18,9 +320,10 @@
 #' from which the function was called.
 #' @param list list, with named objects, each element will become a named variable in
 #' the current environment
-#' @return New variables will be added to the current environment. Any already existing
-#' with the same name will be overwritten.
+#' @return New variables will be added to the current environment. Use with care as any 
+#' already existing with the same name will be overwritten.
 #' @export
+#' @seealso base::list2env
 #' @examples
 #' list.to.env(list(myChar="a string", myNum=1234, myList=list("list within a list",c(1,2,3))))
 #' print(myChar)
@@ -306,9 +609,19 @@ Unlist <- function(obj,depth=1) {
         if(is.list(obj[[cc]])) {
           if(depth<=1) {
             names(obj[[cc]]) <- NULL 
-            obj[[cc]] <- unlist(obj[[cc]])
+            val <- unlist(obj[[cc]])
+            if(is.null(val)) {
+              obj[cc] <- list(NULL)
+            } else {
+              obj[[cc]] <- val            
+            }
           } else {
-            obj[[cc]] <- Unlist(obj[[cc]],depth=depth-1)
+            val <- Unlist(obj[[cc]],depth=depth-1)
+            if(is.null(val)) {
+              obj[cc] <- list(NULL)
+            } else {
+              obj[[cc]] <- val            
+            }
           }
         }
       }
@@ -318,6 +631,7 @@ Unlist <- function(obj,depth=1) {
     return(obj) 
   }
 }
+
 
 
 
@@ -380,7 +694,7 @@ pctile <- function(dat,pc=0.01)
 #' Check whether a given system command is installed (e.g, bash)
 #' 
 #' Tests whether a command is installed and callable by system().
-#' Will return a warning if run on windows
+#' Will return a warning if run on windows when linux.more=TRUE
 #'
 #' @param cmd character vector of commands to test
 #' @param linux.mode logical, alternate way of command testing that only works on linux and
@@ -419,7 +733,9 @@ check.linux.install <- function(cmd=c("plink","perl","sed"),linux.mode=FALSE) {
 
 
 #internal
-head2 <- function(X,...) { if(length(dim(X))==2) { prv.large(X,...,warn=F) } else { print(utils::head(X,...)) } }
+# why was 'utils' necessary???
+#head2 <- function(X,...) { if(length(dim(X))==2) { prv.large(X,...,warn=F) } else { print(utils::head(X,...)) } }
+head2 <- function(X,...) { if(length(dim(X))==2) { prv.large(X,...,warn=F) } else { print(head(X,...)) } }
 
 
 
@@ -589,6 +905,7 @@ toheader <- function(txt, strict = FALSE) {
 #' Header(c("MY SCRIPT","Part 1"),align="left",h=".")
 Header <- function(txt,h="=",v=h,corner=h,align="center") {
   ## Make a heading with a box for text (can be multiple lines) optional horiz/vert/corner symbols
+  if(is.numeric(txt)) { txt <- paste(txt) }
   if(!is.character(txt)) { stop("txt must be character()") }
   nC <- nchar(txt); align <- tolower(align); if(align!="right" & align!="left") { align <- "center" }
   v <- substr(v,1,1); h <- substr(h,1,1); corner <- substr(corner,1,1)
@@ -1126,6 +1443,7 @@ must.use.package <- function(pcknms,bioC=FALSE,ask=FALSE,reload=FALSE,avail=FALS
 #' # setRepositories(ind=1:2) # for the session will by default search bioconductor packages too
 #' search.cran("useful",repos)
 #' search.cran(c("hmm","markov","hidden"),repos=repos)
+#' require(BiocInstaller)
 #' search.cran(c("snpStats","genoset","limma"),all.repos=TRUE)
 search.cran <- function(txt,repos="",all.repos=FALSE) {
   goty <- getOption("pkgType"); 
@@ -1181,6 +1499,7 @@ search.cran <- function(txt,repos="",all.repos=FALSE) {
 #' @export 
 #' @author Nicholas Cooper \email{nick.cooper@@cimr.cam.ac.uk}
 #' @examples
+#' require(BiocInstaller)
 #' repos <- "http://cran.ma.imperial.ac.uk/" # OR: repos <- getOption("repos")
 #' getRepositories(table=TRUE) # shows all available
 #' getRepositories(2:5,FALSE) # returns index for all bioconductor repositories (on my system at least)
@@ -1225,6 +1544,18 @@ getRepositories <- function(ind = NULL,table=FALSE) {
 }
 
 
+# internal
+check.bio <- function() {
+	if("BiocInstaller" %in% installed.packages()) {
+		do.call("require",args=list("BiocInstaller"))
+		return(do.call("biocVersion"))
+	} else {
+		warning("bioconductor does not appear to be installed - this function works better if it is")
+		stop("deliberately throw error for 'tryCatch' to catch")
+	}
+}
+
+
 
 # internal function stolen from 'tools'
 tools_read_repositories <- function (file) 
@@ -1232,7 +1563,7 @@ tools_read_repositories <- function (file)
   # try to replicate the constant 'tools:::.BioC_version_associated_with_R_version'
   get.bioc.version <- function() {
     biocVers <- tryCatch({
-      BiocInstaller::biocVersion() # recent BiocInstaller
+      check.bio() # recent BiocInstaller
     }, error=function(...) {         # no / older BiocInstaller
       numeric_version(Sys.getenv("R_BIOC_VERSION", "2.13"))
     })
@@ -1329,6 +1660,7 @@ Mode <- function(x,multi=FALSE,warn=FALSE) {
 #' @param skip.indent whether to skip functions that are indented,
 #'  the assumption being they are functions within functions
 #' @return creates an html file with name and description of each function
+#' @seealso \code{\link{list.functions.in.file}}
 #' @export 
 #' @author Nicholas Cooper \email{nick.cooper@@cimr.cam.ac.uk}
 #' @examples
@@ -1388,6 +1720,43 @@ Rfile.index <- function(fn,below=TRUE,fn.out="out.htm", skip.indent=TRUE)
   return(fn.list)
 }
 
+
+#' Show all functions used in an R script file, by package
+#'
+#' Parses all functions called by an R script and then lists
+#' them by package. Wrapper for 'getParseData'. Inspired by
+#' 'hrbrmstr', on StackExchange 3/1/2015. May be of great
+#' use for those developing a package to help see what 
+#' namespace 'importsFrom' calls will be required.
+#' @param filename path to an R file containing R code.
+#' @param alphabetic logical, whether to list functions alphabetically.
+#' If FALSE, will list in order of appearance.
+#' @return Returns a list. Parses all functions called by an R script 
+#' and then lists them by package. Those from the script itself are listed
+#' under '.GlobalEnv' and any functions that may originate
+#' from multiple packages have all possibilities listed. Those listed under
+#' 'character(0)' are those for which a package could not be found- may be
+#' functions within functions, or from packages that aren't loaded.
+#' @seealso \code{\link{Rfile.index}}
+#' @export 
+#' @author Nicholas Cooper \email{nick.cooper@@cimr.cam.ac.uk}
+#' @examples
+#' # not run:  rfile <- file.choose() # choose an R script file with functions
+#' # not run:  list.functions.in.file(rfile)
+list.functions.in.file <- function(filename,alphabetic=TRUE) {
+  # from hrbrmstr, StackExchange 3/1/2015
+  if(!file.exists(filename)) { stop("couldn't find file ",filename) }
+  if(!get.ext(filename)=="R") { warning("expecting *.R file, will try to proceed") }
+ # requireNameSpace("dplyr")
+  tmp <- getParseData(parse(filename, keep.source=TRUE))
+  crit <- quote(token == "SYMBOL_FUNCTION_CALL")
+  tmp <- dplyr::filter(tmp, .dots = crit)
+  #tmp <- dplyr::filter(tmp,token=="SYMBOL_FUNCTION_CALL")
+  tmp <- unique(if(alphabetic) { sort(tmp$text) } else { tmp$text })
+  src <- paste(as.vector(sapply(tmp, find)))
+  outlist <- tapply(tmp,factor(src),c)
+  return(outlist)
+}
 
 
 
@@ -1660,7 +2029,7 @@ display.var <- function(val,label,cnts=NULL) {
       if(exists("prv.big.matrix",mode="function")) {
         do.call("prv.big.matrix",args=list(val,name=label))
       } else {
-        warning("preview() needs the package bigmisc to display a big.matrix object")
+        warning("preview() needs the package bigpca to display a big.matrix object")
       }
       return(invisible())
     }
@@ -1927,7 +2296,7 @@ cor.with <- function(x,r=.5,preserve=FALSE,mn=NA,st=NA) {
 #' Summarise the dimensions and type of available R example datasets
 #' 
 #' This function will parse the current workspace to see what R datasets
-#' are available. Using the toHTML function from the tools package to interpret
+#' are available. Using the toHTML function from the 'tools' package to interpret
 #' the data() call, each dataset is examined in turn for type and dimensionality.
 #' Can also use a filter for dataset types, to only show, for instance, matrix 
 #' datasets. Also you can specify whether to only look for base datasets, or to
@@ -2122,7 +2491,7 @@ force.scalar <- function(x,default=1, min=-10^10, max=10^10) {
 #' force.percentage(NA,default=0.25)
 force.percentage <- function(x,default=.5) {
   x <- force.scalar(x,default=default, min=0,max=100)
-  while(x>1) { x <- x/100 }
+  while(x>=1) { x <- x/100 }
   return(x)
 }
 
@@ -2393,6 +2762,7 @@ suck.bytes <- function(tot1,GB=TRUE) {
 #' @export
 #' @author Nicholas Cooper 
 #' @examples
+#' require(BiocInstaller)
 #' packages.loaded("NCmisc","reader")
 #' packages.loaded(c("bigpca","nonsenseFailTxt")) # both not found, as second not real
 #' packages.loaded(c("bigpca","nonsenseFailTxt"),cran.check=FALSE) # hide warning
@@ -2431,6 +2801,12 @@ packages.loaded <- function(pcks="",...,cran.check=TRUE,repos=getRepositories())
 #' @param verbose logical, whether to report the resulting file names to the console
 #' @param suf character, suffix for the split files, default is 'part', the original file
 #'  extension will be appended after this suffix
+#' @param win logical, set to FALSE if running a standard windows setup (cmd.ext), and the file
+#' split will run natively in R. Set to TRUE if you have a unix-alike command system, such as
+#' CygWin, sh.exe, csh.exe, tsh.exe, running, and this will then check to see whether the POSIX
+#' 'split' command is present (this provides a speed advantage). If in doubt, windows users
+#' can always set win=TRUE; the only case where this will cause an issue is if there is a
+#' different command installed with the same name (i.e, 'split').
 #' @export
 #' @return returns the list of file names produced (including path)
 #' @author Nicholas Cooper 
@@ -2441,7 +2817,7 @@ packages.loaded <- function(pcks="",...,cran.check=TRUE,repos=getRepositories())
 #' new.files <- file.split(file.name,size=50)
 #' unlink(new.files); unlink(file.name)
 #' setwd(orig.dir) # reset working dir to original
-file.split <- function(fn,size=50000,same.dir=FALSE,verbose=TRUE,suf="part") {
+file.split <- function(fn,size=50000,same.dir=FALSE,verbose=TRUE,suf="part",win=TRUE) {
   if(!file.exists(fn)) { stop("file",fn,"did not exist")}
   if(!is.numeric(size)) { stop("size must be numeric") }
   size <- as.integer(round(size))
@@ -2599,3 +2975,6 @@ is.ch <- function(x) {
   if(!pt1 & is.list(x)) { pt2 <- all(sapply(x,is.ch)) } else { pt2 <- pt1 }
   return(as.logical(pt1 | pt2))
 }
+
+
+
