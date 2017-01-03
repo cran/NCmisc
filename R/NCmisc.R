@@ -1,13 +1,14 @@
 ###NAMESPACE ADDITIONS###
 # Depends: R (>= 2.10), grDevices, graphics, stats, utils, reader
-# Imports: tools, proftools, plyr
+# Imports: tools, proftools, methods
 # Suggests: KernSmooth, BiocInstaller, Matrix
 # importFrom(proftools, readProfileData, flatProfile)
 # importFrom(tools, toHTML)
 # import(grDevices, graphics, stats, utils)
+# importFrom(methods, is, showMethods)
 ###END NAMESPACE###
 
-# importFrom(dplyr, filter)
+
 
 
 ## add check.bio() to internals list
@@ -479,6 +480,9 @@ extend.pc <- function(X,pc=.5,pos=TRUE,neg=TRUE,swap=FALSE) {
 #' @param fit.leg whether to include an automatic legend for the fit line (will alter the y-limits
 #' to fit)
 #' @param fit.r2 logical, whether to display r squared of the fit in the fit legend
+#' @param fast.loess logical, if TRUE will alter control parameters to make the loess calculation
+#' faster, which is useful for datasets with more than 1000 points. Also reduce the value of 'span'
+#' to increase speed.
 #' @param ... further arguments to the plot function specified by 'scatter', e.g, 'main', 'xlab', etc
 #' @export
 #' @return if file is a character argument, plots data x,y to a file, else will generate a plot to
@@ -495,7 +499,7 @@ extend.pc <- function(X,pc=.5,pos=TRUE,neg=TRUE,swap=FALSE) {
 #' xy <- loess.scatter(DD[,3],DD[,4],return.vectors=TRUE)
 #' prv(xy) # preview the vectors produced
 loess.scatter <- function(x,y,file=NULL,loess=TRUE,span=0.75,scatter=plot,...,ylim=NULL,return.vectors=FALSE,
-                          fit.col="red",fit.lwd=2,fit.lty="solid",fit.leg=TRUE,fit.r2=TRUE) {
+                          fit.col="red",fit.lwd=2,fit.lty="solid",fit.leg=TRUE,fit.r2=TRUE,fast.loess=FALSE) {
   if(length(Dim(x))!=1 | length(Dim(y))!=1) { stop("x and y must be vectors") }
   if(length(x)<1 | length(y)<1) { warning("x/y must have positive length"); return(NULL) }
   if(!is.numeric(x) | !is.numeric(y)) { stop("x and y must be numeric") }
@@ -518,7 +522,13 @@ loess.scatter <- function(x,y,file=NULL,loess=TRUE,span=0.75,scatter=plot,...,yl
       # }
     } else {
       fit <- "loess"
-      lo <- loess(y1~x1,span=span)
+      if(fast.loess) {
+        ctrlz <- list(surface = "interpolate", statistics = "approximate",
+         trace.hat="approximate", cell = 0.1, iterations = 3)
+        lo <- loess(y1 ~ x1, span = span, control=ctrlz)
+      } else {
+        lo <- loess(y1 ~ x1, span = span)
+      }
     }
     y2 <- predict(lo)
     if(fit.r2) {
@@ -1747,14 +1757,17 @@ list.functions.in.file <- function(filename,alphabetic=TRUE) {
   # from hrbrmstr, StackExchange 3/1/2015
   if(!file.exists(filename)) { stop("couldn't find file ",filename) }
   if(!get.ext(filename)=="R") { warning("expecting *.R file, will try to proceed") }
- # requireNameSpace("dplyr")
+  # requireNameSpace("dplyr")
   tmp <- getParseData(parse(filename, keep.source=TRUE))
-  crit <- quote(token == "SYMBOL_FUNCTION_CALL")
-  tmp <- dplyr::filter(tmp, .dots = crit)
+  # next line does what dplyr used to do!
+  nms <- tmp$text[which(tmp$token=="SYMBOL_FUNCTION_CALL")]
+  funs <- unique(if(alphabetic) { sort(nms) } else { nms })
+  #crit <- quote(token == "SYMBOL_FUNCTION_CALL")
+  #tmp <- dplyr::filter(tmp, .dots = crit)
   #tmp <- dplyr::filter(tmp,token=="SYMBOL_FUNCTION_CALL")
-  tmp <- unique(if(alphabetic) { sort(tmp$text) } else { tmp$text })
-  src <- paste(as.vector(sapply(tmp, find)))
-  outlist <- tapply(tmp,factor(src),c)
+  #tmp <- unique(if(alphabetic) { sort(tmp$text) } else { tmp$text })
+  src <- paste(as.vector(sapply(funs, find)))
+  outlist <- tapply(funs, factor(src), c)
   return(outlist)
 }
 

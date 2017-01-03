@@ -15,8 +15,8 @@ a flexible Mode function, top function, simulation of correlated data, and more.
 \tabular{ll}{
 Package: \tab NCmisc\cr
 Type: \tab Package\cr
-Version: \tab 1.1.4\cr
-Date: \tab 2015-04-07\cr
+Version: \tab 1.1.5\cr
+Date: \tab 2016-12-29\cr
 License: \tab GPL (>= 2)\cr
 }
 A package of general purpose functions that might save time or help tidy up code. 
@@ -97,7 +97,7 @@ List of key functions:
 Nicholas Cooper
 
 Maintainer: 
-Nicholas Cooper <nick.cooper@cimr.cam.ac.uk>
+Nicholas Cooper <njcooper@gmx.co.uk>
 }
 \keyword{ iteration }
 \keyword{ color }
