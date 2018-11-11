@@ -43,6 +43,5 @@ else install, then load, if they do not have it.
 # sapply(paste("package",c("limma","MASS","nlme","lme4"),sep=":"),detach,character.only=TRUE)
 }
 \author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+Nicholas Cooper \email{njcooper@gmx.co.uk}
 }
-

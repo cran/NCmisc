@@ -31,4 +31,3 @@ extend.pc(c(25000,55000),.01,neg=FALSE) # standard positive extension
 extend.pc(c(55000,25000),.01,neg=FALSE) # ranges in reverse order, not swapped
 extend.pc(c(55000,25000),.01,neg=FALSE,swap=TRUE) # ranges in reverse order, swapped
 }
-

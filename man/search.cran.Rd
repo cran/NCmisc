@@ -26,10 +26,7 @@ repos <- "http://cran.ma.imperial.ac.uk/" # OR: repos <- getOption("repos")
 # setRepositories(ind=1:2) # for the session will by default search bioconductor packages too
 search.cran("useful",repos)
 search.cran(c("hmm","markov","hidden"),repos=repos)
-require(BiocInstaller)
-search.cran(c("snpStats","genoset","limma"),all.repos=TRUE)
 }
 \author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+Nicholas Cooper \email{njcooper@gmx.co.uk}
 }
-

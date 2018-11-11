@@ -39,6 +39,5 @@ Mode(c("Tom","Dick","Harry"),multi=TRUE,warn=TRUE) # multi==TRUE so
 # warning is negated
 }
 \author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+Nicholas Cooper \email{njcooper@gmx.co.uk}
 }
-

@@ -33,10 +33,9 @@ Create a html index for an R function file by looking for functions,
 # not run:  out <- Rfile.index(rfile,fn.out="temp.htm")
 # unlink("temp.htm") # run once you've inspected this file in a browser
 }
-\author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
-}
 \seealso{
 \code{\link{list.functions.in.file}}
 }
-
+\author{
+Nicholas Cooper \email{njcooper@gmx.co.uk}
+}

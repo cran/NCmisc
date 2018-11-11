@@ -47,4 +47,3 @@ setwd(orig.dir) # reset working dir to original
 \author{
 Nicholas Cooper
 }
-

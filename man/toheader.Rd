@@ -24,4 +24,3 @@ toheader(c("using AIC", "for MODEL selection"), strict=TRUE)
 \author{
 via R Core
 }
-

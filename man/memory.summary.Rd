@@ -30,4 +30,3 @@ utils::object.size() function.
 memory.summary() # shows memory used by all objects in the current session in kb
 memory.summary("mb") # change units to megabytes
 }
-

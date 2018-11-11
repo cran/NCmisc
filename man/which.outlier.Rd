@@ -44,4 +44,3 @@ prv(ii)
 ii <- which.outlier(test.vec,5,"pc",low=FALSE) # only outliers >mean
 prv(ii)
 }
-

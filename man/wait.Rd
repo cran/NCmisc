@@ -26,6 +26,5 @@ wait(0.005, "m")
 wait(0.0001, "Hours", silent=FALSE)
 }
 \author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+Nicholas Cooper \email{njcooper@gmx.co.uk}
 }
-

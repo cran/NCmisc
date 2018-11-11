@@ -34,4 +34,3 @@ force.percentage(NA,default=0.25)
 \seealso{
 \code{\link{force.scalar}}
 }
-

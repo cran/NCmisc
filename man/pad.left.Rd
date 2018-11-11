@@ -27,6 +27,5 @@ pad.left(phone.numbers,"0")
 pad.left(rnorm(10),numdigits=3)
 }
 \author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+Nicholas Cooper \email{njcooper@gmx.co.uk}
 }
-

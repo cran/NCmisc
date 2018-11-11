@@ -70,4 +70,3 @@ loess.scatter(DD[,3],DD[,4],scatter=smoothScatter)
 xy <- loess.scatter(DD[,3],DD[,4],return.vectors=TRUE)
 prv(xy) # preview the vectors produced
 }
-

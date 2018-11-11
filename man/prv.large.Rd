@@ -41,4 +41,3 @@ colnames(mat) <- paste("Var",1:20,sep="")
 prv.large(mat)
 prv.large(mat,rows=9,cols=4,digits=1,rlab="samples",clab="variables",rownums=FALSE)
 }
-

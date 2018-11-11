@@ -29,6 +29,5 @@ Unlist(complex.list,10) # once depth >= list-depth, no difference
 unlist(complex.list,recursive=FALSE) # not the same as any of the above
 }
 \author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+Nicholas Cooper \email{njcooper@gmx.co.uk}
 }
-

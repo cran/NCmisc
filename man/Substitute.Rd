@@ -36,10 +36,9 @@ Substitute(myvar,var2,var3)
 preview(c("myvar","var2","var3"))
 prv(myvar,var2,var3)
 }
-\author{
-Nicholas Cooper
-}
 \seealso{
 \code{\link{prv}}, \code{\link{preview}}
 }
-
+\author{
+Nicholas Cooper
+}

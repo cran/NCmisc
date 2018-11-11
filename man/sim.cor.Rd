@@ -41,10 +41,9 @@ corDat <- sim.cor(500,4,genx=runif,genr=function(x) { 0.5 },mix.order=FALSE)
 prv(corDat) # preview of simulated uniform data with r fixed at 0.5
 cor(corDat) # correlation matrix
 }
-\author{
-Nicholas Cooper
-}
 \seealso{
 \code{\link{cor.with}}
 }
-
+\author{
+Nicholas Cooper
+}

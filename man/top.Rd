@@ -42,4 +42,3 @@ is to return CPU and RAM overall stats, to get detailed stats instead, set Table
 \author{
 Nicholas Cooper
 }
-

@@ -32,4 +32,3 @@ summarise.r.datasets(filter=TRUE,"matrix")
 \author{
 Nicholas Cooper
 }
-

@@ -33,4 +33,3 @@ fakeLines() # should produce between zero and ten lines of random text, 35\% of 
 \author{
 Nicholas Cooper
 }
-

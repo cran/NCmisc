@@ -31,10 +31,9 @@ namespace 'importsFrom' calls will be required.
 # not run:  rfile <- file.choose() # choose an R script file with functions
 # not run:  list.functions.in.file(rfile)
 }
-\author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
-}
 \seealso{
 \code{\link{Rfile.index}}
 }
-
+\author{
+Nicholas Cooper \email{njcooper@gmx.co.uk}
+}

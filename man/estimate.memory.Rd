@@ -54,6 +54,5 @@ estimate.memory(5.4*10^8, raw=TRUE, add.unit=TRUE)
 estimate.memory(5.4*10^8, TRUE, TRUE, add.unit=TRUE) #  'integer' overrides 'raw'
 }
 \author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+Nicholas Cooper \email{njcooper@gmx.co.uk}
 }
-

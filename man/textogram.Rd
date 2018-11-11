@@ -26,6 +26,5 @@ textogram(runif(100000))
 textogram(rnorm(10000),range=c(-3,3))
 }
 \author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+Nicholas Cooper \email{njcooper@gmx.co.uk}
 }
-

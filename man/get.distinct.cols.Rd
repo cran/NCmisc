@@ -23,6 +23,5 @@ get.distinct.cols(10)
 plot(1:22,pch=19,col=get.distinct.cols(22))
 }
 \author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+Nicholas Cooper \email{njcooper@gmx.co.uk}
 }
-

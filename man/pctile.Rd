@@ -23,6 +23,5 @@ pctile(rnorm(100000),.025)
 pctile(sample(100),.9)
 }
 \author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+Nicholas Cooper \email{njcooper@gmx.co.uk}
 }
-

@@ -37,13 +37,12 @@ cor.with(X,preserve=TRUE) # preserve original mean and standard deviation
 X[c(4,10)] <- NA # works fine with NAs, but new var will have same missing
 cor.with(X,mn=50,st=2) # specify new mean and standard deviation
 }
-\author{
-Nicholas Cooper
-}
 \references{
 http://www.uvm.edu/~dhowell/StatPages/More_Stuff/CorrGen.html
 }
 \seealso{
 \code{\link{sim.cor}}
 }
-
+\author{
+Nicholas Cooper
+}

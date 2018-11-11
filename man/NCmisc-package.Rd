@@ -15,8 +15,8 @@ a flexible Mode function, top function, simulation of correlated data, and more.
 \tabular{ll}{
 Package: \tab NCmisc\cr
 Type: \tab Package\cr
-Version: \tab 1.1.5\cr
-Date: \tab 2016-12-29\cr
+Version: \tab 1.1.6\cr
+Date: \tab 2018-11-11\cr
 License: \tab GPL (>= 2)\cr
 }
 A package of general purpose functions that might save time or help tidy up code. 
@@ -24,7 +24,7 @@ A package of general purpose functions that might save time or help tidy up code
  or have  more features (e.g, timeit and loop.tracker reduce an initialisation, 
  'during' and close three-line call structure, to a single function call.
 Also, some of these functions are useful for building packages and pipelines,
- for instance: Header(), to provide strong visual deliniation between 
+ for instance: Header(), to provide strong visual delineation between 
  procedures in console output, by an ascii bordered heading; loop.tracker()
 to track the progress of loops (called with only 1 line of code), with the
  option to periodically backup a key object during the loop; estimate.memory()

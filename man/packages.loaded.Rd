@@ -32,7 +32,6 @@ not part of 'depends' because it is not essential). Because 'require' cannot
 be used within functions submitted as part of a CRAN package.
 }
 \examples{
-require(BiocInstaller)
 packages.loaded("NCmisc","reader")
 packages.loaded(c("bigpca","nonsenseFailTxt")) # both not found, as second not real
 packages.loaded(c("bigpca","nonsenseFailTxt"),cran.check=FALSE) # hide warning
@@ -43,4 +42,3 @@ packages.loaded("snpStats",repos=getRepositories()) # now it can find it by usin
 \author{
 Nicholas Cooper
 }
-

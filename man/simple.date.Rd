@@ -28,4 +28,3 @@ simple.date()
 simple.date(" ",long=TRUE)
 simple.date(time=FALSE)
 }
-

@@ -69,4 +69,3 @@ for (dd in 1:3) { preview("testvar5",counts=list(dd=dd)) }
 \seealso{
 \code{\link{Dim}}
 }
-

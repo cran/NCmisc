@@ -36,4 +36,3 @@ has.method("band", m.example) # band is a function for a 'denseMatrix' but not '
 ## not run # has.method("notAFunction","GRanges") # should return error
 has.method("notAFunction","GRanges",TRUE) # should return FALSE and a warning
 }
-

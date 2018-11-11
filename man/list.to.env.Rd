@@ -33,4 +33,3 @@ print(Y); print(Z)
 \seealso{
 base::list2env
 }
-

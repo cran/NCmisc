@@ -22,6 +22,5 @@ print(x1) ;  standardize(x1)
 print(x2) ;  standardize(x2)
 }
 \author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+Nicholas Cooper \email{njcooper@gmx.co.uk}
 }
-

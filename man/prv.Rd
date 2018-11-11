@@ -53,4 +53,3 @@ prv(193) # fails as there are no object names involved
 \seealso{
 \code{\link{Dim}}
 }
-

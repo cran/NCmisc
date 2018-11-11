@@ -38,4 +38,3 @@ force.scalar(Inf)
 \seealso{
 \code{\link{force.percentage}}
 }
-

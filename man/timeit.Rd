@@ -38,6 +38,5 @@ control.
 #not run# timeit(wait(0.1,"s") ,total.time=FALSE)
 }
 \author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+Nicholas Cooper \email{njcooper@gmx.co.uk}
 }
-

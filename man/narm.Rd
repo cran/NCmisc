@@ -33,6 +33,5 @@ DF; narm(DF)
 print(narm(list(1,2,3,NA,list(1,2,3,NA))))
 }
 \author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+Nicholas Cooper \email{njcooper@gmx.co.uk}
 }
-

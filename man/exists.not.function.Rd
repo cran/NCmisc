@@ -60,4 +60,3 @@ exists("mean",mode="numeric")
 \author{
 Nicholas Cooper
 }
-

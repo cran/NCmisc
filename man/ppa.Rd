@@ -41,4 +41,3 @@ http://www.readcube.com/articles/10.1038/nrg2615
 Equations 2, 3 from
 http://www.tandfonline.com/doi/pdf/10.1198/000313001300339950
 }
-

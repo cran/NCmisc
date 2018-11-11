@@ -27,10 +27,9 @@ Z.to.p(37, TRUE)
 Z.to.p(39, TRUE) # maximum precision exceeded, warnings on
 Z.to.p(39) # maximum precision exceeded, warnings off
 }
-\author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
-}
 \seealso{
 \code{\link{p.to.Z}}
 }
-
+\author{
+Nicholas Cooper \email{njcooper@gmx.co.uk}
+}

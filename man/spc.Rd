@@ -23,10 +23,9 @@ cat(paste(spc(9),"123\\n"))
 cat(paste(spc(8),"1234\\n"))
 spc(c(1:5),".")
 }
-\author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
-}
 \seealso{
 \code{\link{rmv.spc}}
 }
-
+\author{
+Nicholas Cooper \email{njcooper@gmx.co.uk}
+}

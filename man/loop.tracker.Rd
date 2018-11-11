@@ -54,6 +54,5 @@ cat("\\nloaded latest backup from iteration 28:",paste(load("temp.rda")),"\\n")
 print(sav.obj); unlink("temp.rda")
 }
 \author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+Nicholas Cooper \email{njcooper@gmx.co.uk}
 }
-

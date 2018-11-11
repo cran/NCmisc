@@ -26,10 +26,9 @@ rmv.spc("  mid sentence  ")
 rmv.spc("0012300",after=FALSE,char="0")
 rmv.spc(" change nothing ",after=FALSE,before=FALSE)
 }
-\author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
-}
 \seealso{
 \code{\link{spc}}
 }
-
+\author{
+Nicholas Cooper \email{njcooper@gmx.co.uk}
+}

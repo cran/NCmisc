@@ -30,7 +30,6 @@ calling setRepositories (which is hard to reverse). This function can be used to
 expand the search space of the function search.cran() to include bioconductor packages.
 }
 \examples{
-require(BiocInstaller)
 repos <- "http://cran.ma.imperial.ac.uk/" # OR: repos <- getOption("repos")
 getRepositories(table=TRUE) # shows all available
 getRepositories(2:5,FALSE) # returns index for all bioconductor repositories (on my system at least)
@@ -38,6 +37,5 @@ search.cran("genoset",repos=getRepositories(1)) # does not find this bioconducto
 search.cran("genoset",repos=getRepositories()) # should now, because all repositories are used
 }
 \author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+Nicholas Cooper \email{njcooper@gmx.co.uk}
 }
-

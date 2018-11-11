@@ -23,10 +23,9 @@ p.to.Z("5E-8")
 p.to.Z(c(".05",".01",".005"))
 p.to.Z(matrix(runif(16),nrow=4))
 }
-\author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
-}
 \seealso{
 \code{\link{Z.to.p}}
 }
-
+\author{
+Nicholas Cooper \email{njcooper@gmx.co.uk}
+}

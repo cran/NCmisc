@@ -24,6 +24,5 @@ check.linux.install("R") # should be standard
 check.linux.install(c("perl","sed","fake-cmd"))
 }
 \author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+Nicholas Cooper \email{njcooper@gmx.co.uk}
 }
-

@@ -33,6 +33,5 @@ Header(c("SPACE","The final frontier"))
 Header(c("MY SCRIPT","Part 1"),align="left",h=".")
 }
 \author{
-Nicholas Cooper \email{nick.cooper@cimr.cam.ac.uk}
+Nicholas Cooper \email{njcooper@gmx.co.uk}
 }
-
