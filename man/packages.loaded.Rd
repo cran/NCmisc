@@ -4,8 +4,7 @@
 \alias{packages.loaded}
 \title{Check whether a set of packages has been loaded}
 \usage{
-packages.loaded(pcks = "", ..., cran.check = TRUE,
-  repos = getRepositories())
+packages.loaded(pcks = "", ..., cran.check = FALSE, repos = getRepositories())
 }
 \arguments{
 \item{pcks}{character, a package name, or vector of names, if left blank will return all loaded}
@@ -33,11 +32,7 @@ be used within functions submitted as part of a CRAN package.
 }
 \examples{
 packages.loaded("NCmisc","reader")
-packages.loaded(c("bigpca","nonsenseFailTxt")) # both not found, as second not real
-packages.loaded(c("bigpca","nonsenseFailTxt"),cran.check=FALSE) # hide warning
 packages.loaded() # no argument means all loaded packages are listed
-packages.loaded("snpStats",repos=getRepositories(1)) # doesn't find the bioconductor package on CRAN
-packages.loaded("snpStats",repos=getRepositories()) # now it can find it by using all repositories
 }
 \author{
 Nicholas Cooper

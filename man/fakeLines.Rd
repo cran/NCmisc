@@ -4,8 +4,13 @@
 \alias{fakeLines}
 \title{Create fake text for testing purposes}
 \usage{
-fakeLines(max.lines = 10, max.chars = 100, pc.space = 0.35, delim = " ",
-  can.null = TRUE)
+fakeLines(
+  max.lines = 10,
+  max.chars = 100,
+  pc.space = 0.35,
+  delim = " ",
+  can.null = TRUE
+)
 }
 \arguments{
 \item{max.lines}{maxmimum number of fake lines to read}

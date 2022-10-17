@@ -1,8 +1,7 @@
 ###NAMESPACE ADDITIONS###
 # Depends: R (>= 3.10), grDevices, graphics, stats, utils
-# Imports: tools, proftools, methods
+# Imports: tools, methods
 # Suggests: KernSmooth, Matrix
-# importFrom(proftools, readProfileData, flatProfile)
 # importFrom(tools, toHTML)
 # import(grDevices, graphics, stats, utils)
 # importFrom(methods, is, showMethods)
@@ -39,7 +38,7 @@
 #' has.method(t, m.example) # works with an instance of an object type too
 #' has.method("band", m.example) # band is a function for a 'denseMatrix' but not 'dgeMatrix'
 #' ## not run # has.method("notAFunction","GRanges") # should return error
-#' has.method("notAFunction","GRanges",TRUE) # should return FALSE and a warning
+#' ## not run # has.method("notAFunction","GRanges",TRUE) # should return FALSE and a warning
 has.method <- function(FUN,CLASS, false.if.error=FALSE, ...) {
   if(!is.character(CLASS)) { CLASS <- class(CLASS) }
   if(!is.character(FUN) & !is.function(FUN)) { 
@@ -60,6 +59,34 @@ has.method <- function(FUN,CLASS, false.if.error=FALSE, ...) {
     }
   }
   return(!(length(grep("No methods",test))>0))
+}
+
+
+
+
+
+#' Print out comma separated list of values in X, truncating if many (good for error messages)
+#'
+#' Often for nice presentation of error messages you wish to display a list of values.
+#' This adds commas between entries and will truncate the list above a length of 50
+#' items with an ellipsis. Very simple but convenient function.
+#' @param X a vector to be displayed
+#' @return string with entries separated by commas, and if long, entries skipped
+#' indicated by an ellipsis.
+#' @export
+#' @examples
+#' comma.list(1:100)
+#' cat("The following entries were ignored: ", comma.list(c(1,7,10:14)), "\n")
+comma.list <- function(X) {
+  MAX_LEN <- 50
+  txt <- NULL
+  try({
+    txt <- paste(narm(unlist(X)))
+  })
+  if(length(txt)>MAX_LEN) {
+    txt <- c(txt[1:round(MAX_LEN/2)],"...",txt[length(txt)-((round(MAX_LEN/2)):1)+1])
+  }
+  return(paste(txt,collapse=", "))
 }
 
 
@@ -1148,7 +1175,8 @@ wait <- function(dur,unit="s",silent=TRUE) {
 
 
 #' Times an expression, with breakdown of time spent in each function
-#' 
+#' !DEPRECATED October 14, 2022!
+#'
 #' A wrapper for the proftools package Rprof() function.
 #' It is to Rprof() as system.time() is to proc.time() (base)
 #' Useful for identifying which functions are taking the
@@ -1177,22 +1205,9 @@ wait <- function(dur,unit="s",silent=TRUE) {
 timeit <- function(expr,suppressResult=F,total.time=TRUE) {
   # function to measure in detail which function calls take the most time
   # during the evaluation of an expression. NB: will error with use of a trivial/instant expression
-  tf <- cat.path(tempdir(),"Rproftemp.out")
-  Rprof(tf)
-  #do the stuff
-  result <- { expr }
-  Rprof()
-  rd <- readProfileData(tf)
-  tab <- flatProfile(rd,F)
-  if(total.time) { col <- 5 } else { col <- 3 }
-  summary <- head(tab[rev(order(tab[,col])),],30)[,c(3,5)]
-  unlink(tf)
-  if(suppressResult) {
-    return(summary)
-  } else {
-    print(summary)
-    return(result)
-  }
+  message("deprecated since october 2022")
+  message("install an archived version if you need this function or contact NCmisc maintainer")
+  message("performance no longer seems to be very stable")
 }
 
 
@@ -1347,17 +1362,15 @@ pad.left <- function(X, char=" ", numdigits=NA)
 #' Do everything possible to load an R package.
 #' 
 #' Like 'require()' except it will attempt to install a package if
-#' necessary, and will also deal automatically with bioconductor
-#' packages too. Useful if you wish to share code with people who
+#' necessary. Installation of bioconductor packages is deprecated.
+#' Useful if you wish to share code with people who
 #' may not have the same libraries as you, you can include a call to
 #' this function which will simply load the library if present, or
 #' else install, then load, if they do not have it.
 #'
-#' @param pcknms list of packages to load/install, shouldn't mix 
-#'  bioconductor/CRAN in one call
-#' @param bioC whether the listed packages are from bioconductor
+#' @param pcknms list of packages to load/install
 #' @param reload indicates to reload the package even if loaded
-#' @param avail when bioC=FALSE, see whether pcknms are in the list 
+#' @param avail see whether pcknms are in the list
 #'  of available CRAN packages
 #' @param ask whether to get the user's permission to install a
 #'  required package, or just go ahead and do it
@@ -1369,29 +1382,23 @@ pad.left <- function(X, char=" ", numdigits=NA)
 #' @examples
 #' # not run : run if you are ok to install/already have these packages
 #' # must.use.package(c("MASS","nlme","lme4"),ask=FALSE)
-#' # must.use.package("limma",bioC=TRUE)
 #' # search() # show packages have loaded, then detach them again:
-#' # sapply(paste("package",c("limma","MASS","nlme","lme4"),sep=":"),detach,character.only=TRUE)
-must.use.package <- function(pcknms,bioC=FALSE,ask=FALSE,reload=FALSE,avail=FALSE,quietly=FALSE)  
+#' # sapply(paste("package",c("MASS","nlme","lme4"),sep=":"),detach,character.only=TRUE)
+must.use.package <- function(pcknms,ask=FALSE,reload=FALSE,avail=FALSE,quietly=FALSE)
 {
-  ## like 'base::library()' but can easily work for bioconductor packages, and will
-  # automatically attempt to install any required packages not found
-  # reload is for when there might a conflict, so will detach and reload packages 
-  # to force their version of a function with a duplicate name
-  if(!bioC) { 
-    repos <- getOption("repos")
-    if(any(repos=="@CRAN@" | repos=="")) { repos <- getRepositories(1) }
-    if(is.null(repos) | is.na(repos)) { repos <- getRepositories(1) }
-    if(avail) {
-      goty <- getOption("pkgType"); 
-      av.pk <- available.packages(type=goty,
-          contrib.url(repos=repos, type=goty)) 
-    }
+  repos <- getOption("repos")
+  if(any(repos=="@CRAN@" | repos=="")) { repos <- getRepositories(1) }
+  if(is.null(repos) | is.na(repos)) { repos <- getRepositories(1) }
+  if(avail) {
+    goty <- getOption("pkgType");
+    av.pk <- available.packages(type=goty,
+        contrib.url(repos=repos, type=goty))
   }
+  
   for (cc in 1:length(pcknms))
   {
     nxt.pck <- pcknms[cc]
-    if(!bioC & avail) { if(!nxt.pck %in% av.pk) { 
+    if(avail) { if(!nxt.pck %in% av.pk) {
       warning(nxt.pck,
               " is not in the list of CRAN packages for the current version of R. ",
               "Either it has not compiled successfully for this version, or the name (",
@@ -1415,22 +1422,9 @@ must.use.package <- function(pcknms,bioC=FALSE,ask=FALSE,reload=FALSE,avail=FALS
         ans <- "yes" 
       }
       if(ans=="yes") {
-        if(bioC) {
-          source("http://bioconductor.org/biocLite.R",local=TRUE) # biocLite() should now be replaced
-          if(!exists("biocLite",mode="function")) {
-            biocLite <- function(x,...) { 
-              cat("please load biocLite function from http://bioconductor.org/biocLite.R and install",nxt.pck,"manually") 
-            } 
-          }
-          repos <- getOption("repos")
-          if(any(repos=="@CRAN@" | repos=="")) { repos <- getRepositories(1) }
-          if(is.null(repos) | is.na(repos)) { repos <- getRepositories(1) }
-          biocLite(nxt.pck,siteRepos=repos)
-          suppressWarnings(worked <- checklib(nxt.pck,character.only=TRUE,warn.conflicts=FALSE,quietly=quietly))
-        } else {
-          install.packages(nxt.pck,repos=repos,dependencies=TRUE); 
-          suppressWarnings(worked <- checklib(nxt.pck,character.only=TRUE,warn.conflicts=FALSE,quietly=quietly)) 
-        }
+        install.packages(nxt.pck,repos=repos,dependencies=TRUE);
+        suppressWarnings(worked <- checklib(nxt.pck,character.only=TRUE,warn.conflicts=FALSE,quietly=quietly))
+        
         if(!worked) { warning("automated installation of required package: ",nxt.pck," failed") }
       } else {
         warning("please manually install package ",nxt.pck," to continue")
@@ -1453,11 +1447,10 @@ must.use.package <- function(pcknms,bioC=FALSE,ask=FALSE,reload=FALSE,avail=FALS
 #' @export 
 #' @author Nicholas Cooper \email{njcooper@@gmx.co.uk}
 #' @examples
-#' repos <- "http://cran.ma.imperial.ac.uk/" # OR: repos <- getOption("repos")
-#' # setRepositories(ind=1:2) # for the session will by default search bioconductor packages too
-#' search.cran("useful",repos)
-#' search.cran(c("hmm","markov","hidden"),repos=repos)
-search.cran <- function(txt,repos="",all.repos=FALSE) {
+#' ## not run # repos <- "http://cran.ma.imperial.ac.uk/" # OR: repos <- getOption("repos")
+#' ## not run # search.cran("draw")
+#' ## not run # search.cran(c("hmm", "markov", "hidden"))
+search.cran <- function(txt, repos="", all.repos=FALSE) {
   goty <- getOption("pkgType"); 
   if(all.repos) {
     repos <- getRepositories() # use all available
@@ -1514,8 +1507,10 @@ search.cran <- function(txt,repos="",all.repos=FALSE) {
 #' repos <- "http://cran.ma.imperial.ac.uk/" # OR: repos <- getOption("repos")
 #' getRepositories(table=TRUE) # shows all available
 #' getRepositories(2:5,FALSE) # returns index for all bioconductor repositories (on my system at least)
-#' search.cran("genoset",repos=getRepositories(1)) # does not find this bioconductor package on CRAN
-#' search.cran("genoset",repos=getRepositories()) # should now, because all repositories are used
+#' # does not find this bioconductor package on CRAN
+#' ## not run # search.cran("genoset",repos=getRepositories(1))
+#' # should now, because all repositories are used
+#' ## not run # search.cran("genoset",repos=getRepositories())
 getRepositories <- function(ind = NULL,table=FALSE) {
   p <- file.path(Sys.getenv("HOME"), ".R", "repositories")
   if (!file.exists(p)) 
@@ -1555,7 +1550,132 @@ getRepositories <- function(ind = NULL,table=FALSE) {
 }
 
 
+#' Select the nearest point in an array to a given value
+#'
+#' Similar to the base function match() but allows for data where you
+#' won't find an exact match. Selects the nearest value from 'array' to the
+#' value 'point'. Sometimes there are multiple points with equal distance
+#' in which case choose from 3 possible 'dispute.method's for choosing
+#' which of the equidistant array values to index.
+#' returns the index of 'array' to which 'point' is nearest.
+#' @param array a numeric vector or POSIXct vector of date-times.
+#' @param point the value that you want to find the nearest point to.
+#' @param dispute.method when there are equidistant values to 'point' in
+#' array, choose either the first, last, or a random select, based
+#' on the original order in 'array.
+#' @return index value of the nearest point in 'array'.
+#' @export
+#' @author Nicholas Cooper \email{njcooper@@gmx.co.uk}
+#' @examples
+#' myArray <- 1:100
+#' nearest.to(myArray, 7.7)
+#' nearest.to(myArray, 50.5)
+#' nearest.to(myArray, 50.5, dispute.method="last")
+nearest.to <- function(array,point,dispute.method=c("first","last","random")) {
+  if(is(array)[1]=="POSIXct" | is(point)[1]=="POSIXct") {
+    diffs <- abs(difftime(as.POSIXct(point,origin="1970-01-01"), as.POSIXct(array,origin="1970-01-01"),units = "s"  ))
+  } else {
+    diffs <- abs(point-array)
+  }
+  if(length(narm(diffs))<1) {
+    warning("length of ",
+            if(length(point)==0) { "point" } else { "array" },
+            " was zero in nearest.to()")
+    return(rep(NA, length(point)))
+  }
+  best <- min(diffs,na.rm=T)
+  ii <- which(diffs==best)
+  dispute.method=dispute.method[1]
+  if(length(ii)>1) {
+    if(dispute.method=="first") {
+      return(ii[1])
+    } else if(dispute.method=="last") {
+      return(tail(ii,1))
+    } else if(dispute.method=="random") {
+      return(ii[sample(length(ii))[1]])
+    } else {
+      stop("passed invalid argument to 'dispute.method'")
+    }
+  } else {
+    return(ii)
+  }
+}
 
+
+# internal standard error calculation
+se.na <- function(x, population=FALSE) {
+  N <- length(x)
+  if(!population) { n <- N-1 } else { n <- N }
+  se <- sd(x,na.rm=T)/sqrt(n)
+  return(se)
+}
+
+
+#' Descriptive summary with SD/SE + improved formatting
+#'
+#' Wrapper for the base function summary() but adds standard deviation,
+#' standard error, and an 'N' and missing 'NA' count that are consistent.
+#' @param x vector of numeric data
+#' @param digits number of digits to round resulting values to
+#' @param neaten.names logical, TRUE removes period and space from names
+#' of the results returned by summary() to make the names better for
+#' use in a data.frame.
+#' @return array of descriptive statistics for x
+#' @export
+#' @author Nicholas Cooper \email{njcooper@@gmx.co.uk}
+#' @examples
+#' x <- 1:100
+#' summary2(x, digits=2)
+#' summary2(c(x, NA, NA), digits=2)
+summary2 <- function(x, digits=NULL, neaten.names=TRUE) {
+  allna <- F
+  if(all(is.na(x))) {
+    x <- c(0, x)
+    allna <- T
+  }
+  s1 <- summary(x,exclude=NA)
+  if(!"NA's" %in% names(s1)) {
+    s1[["NA's"]] <- 0
+  }
+  stats <- c(s1, sd=sd(x,na.rm=T), N=length(x), SE=se.na(x))
+  if(allna) { stats["N"] <- stats["N"]-1; stats[which(stats==0)] <- NA } # hack to make data with all NA have the same names
+  if(neaten.names) {
+    names(stats) <- gsub(".", "", names(stats), fixed=T) # remove the '.'
+    names(stats) <- gsub(" ", "", names(stats), fixed=T) # remove the spaces
+  }
+  if(is.numeric(digits)) {
+    return(round(stats, digits=digits))
+  } else {
+    return(stats)
+  }
+}
+
+
+#' Remove names from a named vector or list
+#'
+#' Convenience function, it's very easy to set names to NULL, but
+#' this requires a dedicated line of code. Using this function
+#' can make your code simpler.
+#' @param X object for which you want to remove name
+#' @return the original object but without names
+#' @export
+#' @author Nicholas Cooper \email{njcooper@@gmx.co.uk}
+#' @examples
+#' x <- c(boo=1, hiss=2)
+#' rmv.names(x)
+#' X <- list(testing=c(1,2,3), thankyou=TRUE)
+#' rmv.names(X)
+rmv.names <- function(X) {
+  if(length(X)<1) { return(X) }
+  if(all(is.na(X))) {
+    if(!is.null(names(X))) {
+      names(X) <- NULL
+    }
+    return(X)
+  }
+  names(X) <- NULL
+  return(X)
+}
 
 
 # internal function stolen from 'tools'
@@ -2768,12 +2888,8 @@ suck.bytes <- function(tot1,GB=TRUE) {
 #' @author Nicholas Cooper 
 #' @examples
 #' packages.loaded("NCmisc","reader")
-#' packages.loaded(c("bigpca","nonsenseFailTxt")) # both not found, as second not real
-#' packages.loaded(c("bigpca","nonsenseFailTxt"),cran.check=FALSE) # hide warning
 #' packages.loaded() # no argument means all loaded packages are listed
-#' packages.loaded("snpStats",repos=getRepositories(1)) # doesn't find the bioconductor package on CRAN
-#' packages.loaded("snpStats",repos=getRepositories()) # now it can find it by using all repositories
-packages.loaded <- function(pcks="",...,cran.check=TRUE,repos=getRepositories()) {
+packages.loaded <- function(pcks="",...,cran.check=FALSE, repos=getRepositories()) {
   more <- c(...); if(length(more)>0) { pcks <- c(pcks,paste(more)) }
   if(!is.character(pcks)) { stop("must enter package names as character strings") }
   pt <- "package:"; pkgset <- gsub(pt,"",search()[grep(pt,search(),fixed=TRUE)])
@@ -2789,6 +2905,347 @@ packages.loaded <- function(pcks="",...,cran.check=TRUE,repos=getRepositories())
     }
   }
   return(answer)
+}
+
+
+#' Wrapper for the base table() function that includes
+#' zero counts - useful to get consistent dimensions across
+#' multiple runs with different responding patterns
+#' Forces a 2d table with every possible cell (allow zero counts)
+#' Only for tables where there are two vectors entered, while
+#' the base function allows for more, or also allows just 1.
+#' If the wrong arguments are entered, attempts to pass the input
+#' to the base version of 'table' instead.
+#' @param ... vector arguments, see input for base:table() function
+#' @param col categories to include as columns of the table
+#' @param row categories to include as rows of the table
+#' @param cn optionally replace the raw value names with desired column names.
+#' Must be same length as 'col'.
+#' @param rn optionally replace the raw value names with desired row names.
+#' Must be same length as 'row'.
+#' @param remove.na remove NA values from row/col if present
+#' @param use.order TRUE to use the order in 'col' and 'row' for table, otherwise
+#' use the default order of table() - which is usually alphabetical
+#' @return returns a table, just like the base:table() function
+#' but the row and column names are fixed regardless of count
+#' @export
+#' @author Nicholas Cooper
+#' @examples
+#' nm <- c("Mike", "Anna", "John", "Tony")
+#' vec_r <- sample(tolower(nm)[c(1,3,4)], 50, replace=TRUE)
+#' vec_c <- sample(c(1,2,4,5), 50, replace=TRUE)
+#' table(vec_r, vec_c)
+#' table2d(vec_r, vec_c, row=tolower(nm), col=paste(1:5))
+#' table2d(vec_r, vec_c, row=tolower(nm), col=paste(1:5), use.order = FALSE)
+#' table2d(vec_r, vec_c, row=tolower(nm), col=paste(1:5), rn=nm, cn=c("I", "II", "III", "IV", "V"))
+table2d <- function(...,col,row,rn=NULL,cn=NULL,use.order=TRUE,remove.na=FALSE) {
+  sortna <- function(...) {
+    sort(..., na.last=TRUE)
+  }
+  clmn <- paste(col); rowe <- paste(row)
+  if(remove.na & (!is.null(rn) | !is.null(cn))) { clmn <- paste(narm(col)); rowe <- paste(narm(row)); rn <- narm(rn); cn <- narm(cn) }
+  inp <- list(...)
+  bad1 <- FALSE
+  if(length(inp)!=2) { bad1 <- TRUE }
+  if(length(inp)<2) { bad1 <- T } else {
+    if(length(inp[[1]])!=length(inp[[2]])) {
+      bad1 <- TRUE
+    } else {
+      if(length(inp[[1]])<1) {
+        bad1 <- TRUE
+      }
+    }
+  }
+  if(bad1) {
+    warning("2 arguments of equal length required for table2d, passing to base:table")
+    return(table(...))
+  }
+  rrr <- inp[[1]]; ccc <- inp[[2]]
+  rna <- cna <- 0
+  if(length(rrr)<length(ccc)) { rna <- rep(NA, length(ccc)-length(rrr)) ; rrr <- c(rrr, rna) }
+  if(length(ccc)<length(rrr)) { cna <- rep(NA, length(rrr)-length(ccc)); ccc <- c(ccc, cna) }
+  # add 1 of each possible cell to the 2 vectors, to ensure each table cell is represented
+  rrr <- c(rep(sortna(rowe),each=length(clmn)),rrr)
+  ccc <- c(rep(sortna(clmn),length(rowe)),ccc)
+  #prv(rrr,ccc)
+  nmz <- sapply(match.call(expand.dots=TRUE)[-1], deparse) # get ... arg names
+  TT <- table(rrr,ccc,dnn=nmz[1:2])-1
+  nnas <- cna+rna
+  if(nnas>0) {
+    # might need to subtract from NA counts here
+  }
+  #prv(TT,rn) ; print(cn)
+  if(use.order){
+    TT <- TT[, match(col, colnames(TT))]
+    TT <- TT[match(row, rownames(TT)),]
+  }
+  if(length(rn)==length(rowe)) { rownames(TT) <- rn[match(rownames(TT), row)] }
+  if(length(cn)==length(clmn)) { colnames(TT) <- cn[match(colnames(TT), col)] }
+  return(TT)
+}
+
+
+
+#' Determine robustly whether a vector contains logical data
+#'
+#' This is an improvement on base:is.logical because data may be encoded as
+#' a different type (e.g, string, "TRUE", "FALSE") especially if imported from
+#' a file. This does not include logical vectors coded as 0,1; such will
+#' return FALSE with this function.
+#' @param x a vector to check for logical status
+#' @param thresh threshold to decide that a variable is logical. NA values will
+#' be ignored in the test. Then it looks at the proportion of values that are
+#' successfully coerced to logical without giving 'NA'. If this threshold is
+#' 0.9, then any column where at least 90% of non-NA values can be successfully
+#' converted to logical type, will return TRUE for this function call.
+#' @return returns a logical TRUE or FALSE for the logical status of x.
+#' @export
+#' @author Nicholas Cooper
+#' @examples
+#' numeric <- 1:10
+#' string <- paste("one", "two", "three", "four")
+#' logic1 <- c(TRUE,FALSE,FALSE,TRUE,FALSE,NA)
+#' logic2 <- c("TRUE", "FALSE", "TRUE", NA, "TRUE", NA, NA, NA)
+#' logic3 <- c("True", "False", "True", "False")
+#' numlogic <- c(0,1,0,0,0,1,1,1,0)
+#' is.vec.logical(numeric)
+#' is.vec.logical(string)
+#' is.vec.logical(logic1)
+#' is.vec.logical(logic2)
+#' is.vec.logical(logic3)
+#' is.vec.logical(numlogic)
+is.vec.logical <- function(x, thresh=0.9) {
+  if(is.logical(x)) { return(TRUE) }
+  lV <- length(which(toupper(paste(x)) %in% c("TRUE", "FALSE", "NA")))
+  if((lV==0) | length(x)==0) {
+    return(FALSE)
+  }
+  if(lV/length(x) > thresh) {
+    return(TRUE)
+  }
+  return(FALSE)
+}
+
+
+#' Determine robustly whether a vector contains numeric data
+#'
+#' This is an improvement on base:is.numeric because data may be encoded as
+#' a different type (e.g, string) especially if imported from a file.
+#' @param x a vector to check for numeric status
+#' @param logical.is.numeric by default this is FALSE, which means
+#' logical vectors will return FALSE to being numeric. If set to
+#' TRUE, then a variable will get a return value of TRUE if it is
+#' based on numbers or appears to be of 'logical' type.
+#' @param thresh threshold to decide that a variable is numeric. NA values will
+#' be ignored in the test. Then it looks at the proportion of values that are
+#' successfully coerced to numeric without giving 'NA'. If this threshold is
+#' 0.9, then any column where at least 90% of non-NA values can be successfully
+#' converted to numeric type, will return TRUE for this function call.
+#' @return returns a logical TRUE or FALSE for the numeric status of x.
+#' @export
+#' @author Nicholas Cooper
+#' @examples
+#' numeric1 <- 1:10
+#' numeric2 <- paste(1:10)
+#' string <- paste("one", "two", "three", "four")
+#' logic1 <- c(TRUE,FALSE,FALSE,TRUE,FALSE,NA)
+#' numericish <- paste(c(NA, NA, 6:10, "5|6", "7|8", 1))
+#' is.vec.numeric(numeric1)
+#' is.vec.numeric(numeric2)
+#' is.vec.numeric(string)
+#' is.vec.numeric(logic1)
+#' is.vec.numeric(logic1, logical.is.numeric=TRUE)
+#' is.vec.numeric(numericish)
+#' is.vec.numeric(numericish, thresh=0.7)
+is.vec.numeric <- function(x, logical.is.numeric=FALSE, thresh=0.9) {
+  answer = FALSE
+  sel <- !is.missing(x)
+  if(is.vec.logical(x, thresh=thresh)) {
+    if(logical.is.numeric){
+      temp <- x
+    } else {
+      return(FALSE)
+    }
+  } else {
+    temp <- suppressWarnings(as.numeric(toupper(as.character(x))))
+  }
+  ll <- length(which(!is.na(temp[sel])))
+  pc <- ll/length(temp[sel])
+  if(all(is.na(pc))) { pc <- 0 }
+  if(pc>thresh) {
+    answer <- TRUE
+  }
+  return(answer)
+}
+
+
+# internal
+# determine robustly whether a column of a dataframe contains numeric data
+# (which may be encoded as a different type, e.g, string)
+is.col.numeric <- function(X, n, force=FALSE, logical.is.numeric=FALSE, thresh=0.9) {
+    ans <- is.vec.numeric(X[,n], logical.is.numeric=logical.is.numeric, thresh=thresh) | force
+    return(ans)
+}
+
+
+#' Iterate through numeric columns of a dataframe and replace missing with the mean
+#'
+#' To simple replace missing data without changing column means.
+#' This will also use criteria to decide whether each column is numeric,
+#' so that illegal operations aren't performed on strings, etc.
+#' Also adjusting the 'error' parameter allows adding variance to the
+#' missing observations to help to reduce bias associated with inserting
+#' many of the same replacement value.
+#' @param X a data.frame to replace missing values in
+#' @param repl.fun the function to perform the replacement. Default
+#' is 'mean'. A replacement should take a vector 'x' and produce a
+#' single scalar as a result.
+#' @param error default value is 0, meaning replacements will be all
+#' the same value for each column of the data.frame X. If you give
+#' a positive value, this amount of gaussian noise (in StDev units of
+#' the original variable) will be added to the replacement values.
+#' @param thresh passed to function 'is.vec.numeric', see explanation there.
+#' @param force TRUE means replace missing for all columns with testing for numeric
+#' @param digits Trim replacement values to this many digits
+#' @return returns a data.frame with the same dimensions with missing
+#' values for numeric values imputed using the repl.fun function,
+#' optionally with noise added.
+#' @export
+#' @author Nicholas Cooper
+#' @examples
+#' df <- data.frame(first=c(1,2,NA,4,5),
+#'   second=paste(c(6,7,8,NA,10)),
+#'   third=c("jake", "fred", "cathy", "sandra", "mike"))
+#' df
+#' replace.missing.df(df)
+#' replace.missing.df(df, force=TRUE)
+#' df2 <- data.frame(first=c(1:5, NA, NA, NA,9, 10),
+#'   second=paste(c(NA, NA, 6:10, "5|6", "7|8", 1)),
+#'   third=rep(c("jake", "fred", "cathy", "sandra", "mike"),2))
+#' df2
+#' replace.missing.df(df2)
+#' replace.missing.df(df2, thresh=0.7)
+#' replace.missing.df(df2, error = 1, thresh=0.7, digits=4)
+replace.missing.df <- function(X, repl.fun=mean, error=0, thresh=0.9, digits=99, force=FALSE) {
+  if(length(Dim(X))!=2) { warning("Warning: X did not have 2 dimensions"); return(X) }
+  ans <- function(...){
+    suppressWarnings(as.numeric(...))
+  }
+  for(cc in 1:ncol(X)) {
+    if(suppressWarnings(is.col.numeric(X=X, n=cc, force=force, thresh=thresh, logical.is.numeric=FALSE))){
+      misn <- is.na(as.numeric(X[[cc]]))
+      if(any(misn)) {
+        e <- sd(narm(as.numeric(X[[cc]])))*error*rnorm(length(which(misn)))
+        X[[cc]][misn] <- round(repl.fun(narm(as.numeric(X[[cc]]))) + e, digits=digits)
+      }
+    }
+  }
+  return(X)
+}
+
+
+#' Convert all possible columns of a data.frame to numeric
+#'
+#' Importing data from csv files can often lead to numeric variables being
+#' coded as factors or strings. This will not work well with many R functions.
+#' This function provides a quick way to deal with this across a whole data frame
+#' while attempting to leave columns untouched that are not genuinely numeric data.
+#' In edge cases you might need to adjust 'threshold' to get the correct result,
+#' usually an issue if mostly numeric columns often have strings amongst them, for
+#' instance a column with mostly numbers, but occassionally pipe-separated values
+#' like '4.4|5.0|6.1', etc.
+#' @param df data.frame to transform to numeric (where possible)
+#' @param except avoid changing any colnames in this array
+#' @param force force all columns to numeric without checking types
+#' @param digits if a non-NA integer value is used, will round numeric columns
+#' to this many decimal places after making numeric.
+#' @param thresh threshold to decide that a variable is numeric. NA values will
+#' be ignored in the test. Then it looks at the proportion of values that are
+#' successfully coerced to numeric without giving 'NA'. If this threshold is
+#' 0.9, then any column where at least 90% of non-NA values can be successfully
+#' converted to numeric type, will be kept as numeric, else they will be left
+#' as they were.
+#' @return data.frame with numeric type for any applicable columns
+#' @export
+#' @author Nicholas Cooper
+#' @examples
+#' df <- data.frame(first=c(1:5),
+#'  second=paste(6:10),
+#'  third=c("jake", "fred", "cathy", "sandra", "mike"))
+#' sapply(sapply(df, is), "[", 1) # check type of each column
+#' dfN <- Numerify(df)
+#' sapply(sapply(dfN, is), "[", 1) # now second column is numeric
+#' df2 <- data.frame(first=c(1:10),
+#'  second=paste(c(NA, NA, 6:10, "5|6", "7|8", 1)),
+#'  third=rep(c("jake", "fred", "cathy", "sandra", "mike"),2))
+#' sapply(sapply(df2, is), "[", 1)
+#' df2N1 <- Numerify(df2, thresh=0.7)
+#' df2N2 <- Numerify(df2, thresh=0.8)
+#' sapply(sapply(df2N1, is), "[", 1) # at this threshold second column goes to numeric
+#' sapply(sapply(df2N2, is), "[", 1) # second column stays a string at this threshold
+Numerify <- function(df, except=NULL, force=FALSE, digits=NA, thresh=0.9) {
+    suppressWarnings(i_numerify(df=df, except=except, force=force, digits=digits, thresh=thresh) )
+}
+
+
+# internal convert a data.frame to numeric
+i_numerify <- function(df, except=NULL, force=FALSE, digits=NA, thresh=0.9) {
+  THRESH <- thresh
+  df <- as.data.frame(df, stringsAsFactors=FALSE)
+  set <- 1:ncol(df)
+  if(length(except)>0) {
+    if(is.character(except)) {
+      if(any(except %in% colnames(df))) {
+        set <- set[-narm(unique(match(except, colnames(df))))]
+      } else {
+        message("'except' contained column names not found in df: ", comma.list(except[!except %in% colnames(df)]), ", ignoring")
+      }
+    } else {
+      if(all(except %in% 1:ncol(df))) {
+        set <- set[-except]
+      } else {
+        stop("except contained column numbers not found in df")
+      }
+    }
+  }
+  for (dd in set)  {
+    sel <- !is.missing(df[,dd])
+    if(is.logical(df[,dd])) {
+      temp <- df[,dd]
+    } else {
+      temp <- as.numeric(as.character(df[,dd]))
+    }
+    ll <- length(which(!is.na(temp[sel])))
+    pc <- ll/length(temp[sel])
+    if(all(is.na(pc))) { pc <- 0 }
+    if(pc > THRESH | force) {
+      val <- df[[dd]]
+      if(length(Dim(val, cat.lists = F))>1) {
+        # prevent unlisting from skipping null values
+        # this can happen decoding jsons with 'null' values
+        val[sapply(val, function(x) { length(x) < 1 })] <- NA
+        val <- unlist(val)
+      }
+      df[[dd]] <- as.numeric(val)
+      if(!is.na(digits)) {
+        df[,dd] <- round(temp, digits=digits)
+      } else {
+        df[,dd] <- temp
+      }
+    } # else { cat(dd,".") }
+  }
+  return(df)
+}
+
+
+# internal for numerify: robustly return a vector of TRUE/FALSE for whether each element of x is missing/invalid
+is.missing <- function(x, zero.is.missing=FALSE) {
+  if(is.null(x)) { return(T) }
+  dim(x) <- NULL
+  if(all(is.na(x))) { return(rep(T, length(x))) }
+  if(length(x)==0) { return(T)}
+  if(zero.is.missing) { x[x==0] <- NA }
+  return(is.na(x) | is.infinite(x) | (paste(x)=="NA"))
 }
 
 
@@ -2811,8 +3268,8 @@ packages.loaded <- function(pcks="",...,cran.check=TRUE,repos=getRepositories())
 #' 'split' command is present (this provides a speed advantage). If in doubt, windows users
 #' can always set win=TRUE; the only case where this will cause an issue is if there is a
 #' different command installed with the same name (i.e, 'split').
-#' @export
 #' @return returns the list of file names produced (including path)
+#' @export
 #' @author Nicholas Cooper 
 #' @examples
 #' orig.dir <- getwd(); setwd(tempdir()); # move to temporary dir
@@ -2929,7 +3386,7 @@ rmv.ext <- function(fn=NULL,only.known=TRUE,more.known=NULL,print.known=FALSE) {
 
 #INTERNAL
 ## COPY FROM READER, SO NCMISC DOESN'T DEPEND ON READER
-cat.path <- function(dir="",fn,pref="",suf="",ext="",must.exist=FALSE) 
+cat.path <- function(dir="",fn,pref="",suf="",ext="",must.exist=FALSE,windows=FALSE)
 {
   dir.ch <- .Platform$file.sep
   if(is.list(fn) & is.ch(fn)) { fn <- unlist(fn) } #; 
@@ -2952,26 +3409,30 @@ cat.path <- function(dir="",fn,pref="",suf="",ext="",must.exist=FALSE)
     warn <- paste("required file",location,"not found!")
     stop(warn)
   }
+  if(windows) {
+      # make more windows compatible
+      location <- gsub('/', '\\', location, fixed=TRUE)
+  }
   return(location)
 }
 
 #INTERNAL
-## COPY FROM READER, SO NCMISC DOESN'T DEPEND ON READER
-#' Internal function used by cat.path
+## COPY FROM READER, SO NCMISC DOES NOT DEPEND ON READER
+# Internal function used by cat.path
 dir.force.slash <- function(dir) {
-  # make sure 'dir' directory specification ends in a / character
-  if(!is.null(dim(dir))) { stop("dir should be a vector") }
+  # make sure dir directory specification ends in a forward slash character
+  if(!is.null(dim(dir))) { warning('dir should be a vector') }
   dir <- paste(dir)
   dir.ch <- .Platform$file.sep
-  the.test <- (dir!="" & substr(dir,nchar(dir),nchar(dir))!=dir.ch)
-  dir[the.test] <- paste(dir[the.test],dir.ch,sep="")
+  the.test <- (dir!='' & substr(dir,nchar(dir),nchar(dir))!=dir.ch)
+  dir[the.test] <- paste(dir[the.test],dir.ch,sep='')
   return(dir)
 }
 
 
 #INTERNAL
 ## COPY FROM READER, SO NCMISC DOESN'T DEPEND ON READER
-#' Internal function to assess whether data is a character or list of characters
+# Internal function to assess whether data is a character or list of characters
 is.ch <- function(x) { 
   # is function for character() or list of characters
   if(is.null(x)) { return(FALSE) }

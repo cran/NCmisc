@@ -4,8 +4,14 @@
 \alias{sim.cor}
 \title{Simulate a dataset with correlated measures}
 \usage{
-sim.cor(nrow = 100, ncol = 100, genx = rnorm, genr = runif, k = 3,
-  mix.order = TRUE)
+sim.cor(
+  nrow = 100,
+  ncol = 100,
+  genx = rnorm,
+  genr = runif,
+  k = 3,
+  mix.order = TRUE
+)
 }
 \arguments{
 \item{nrow}{integer, number of rows to simulate}

@@ -1,13 +1,13 @@
 Package: NCmisc
 Type: Package
-Version: 1.1.6
-Date: 2018-11-11
+Version: 1.2.0
+Date: 2022-10-14
 Title: Miscellaneous Functions for Creating Adaptive Functions and
         Scripts
 Author: Nicholas Cooper
 Maintainer: Nicholas Cooper <njcooper@gmx.co.uk>
-Depends: R (>= 3.3), grDevices, graphics, stats, utils
-Imports: tools, proftools, methods
+Depends: R (>= 3.10), grDevices, graphics, stats, utils
+Imports: tools, methods
 Suggests: KernSmooth, Matrix
 Description: A set of handy functions. Includes a versatile one line progress bar, one 
  line function timer with detailed output, time delay function, text histogram, object 
@@ -15,6 +15,6 @@ Description: A set of handy functions. Includes a versatile one line progress ba
  a flexible Mode function, top function, simulation of correlated data, and more.
 License: GPL (>= 2)
 NeedsCompilation: no
-Packaged: 2018-11-11 23:32:51 UTC; ncooper
+Packaged: 2022-10-17 08:12:29 UTC; ncooper
 Repository: CRAN
-Date/Publication: 2018-11-12 00:00:03 UTC
+Date/Publication: 2022-10-17 09:15:22 UTC

@@ -1,5 +1,23 @@
-exportPattern("^[[:alpha:]]+")
+export("Dim", "Header", "Mode", "Numerify", "Rfile.index",
+       "Substitute", "Unlist", "Z.to.p", "cat.path",
+       "check.linux.install", "comify", "comma.list", "cor.with",
+       "dir.force.slash", "display.var", "divide.top.txt", "dup.pairs",
+       "estimate.memory", "exists.not.function", "extend.pc",
+       "fakeLines", "file.split", "file.split.windows",
+       "force.percentage", "force.scalar", "get.distinct.cols",
+       "get.ext", "getRepositories", "has.method", "head2", "headl",
+       "i_numerify", "is.ch", "is.col.numeric", "is.missing",
+       "is.vec.logical", "is.vec.numeric", "list.functions.in.file",
+       "list.to.env", "loess.scatter", "loop.tracker", "make.divisor",
+       "make.top.tab", "memory.summary", "must.use.package", "narm",
+       "nearest.to", "out.of", "p.to.Z", "packages.loaded", "pad.left",
+       "pctile", "ppa", "preview", "prv", "prv.large",
+       "replace.missing.df", "rmv.ext", "rmv.names", "rmv.spc",
+       "se.na", "search.cran", "sim.cor", "simple.date", "spc",
+       "standardize", "suck.bytes", "suck.cpu", "suck.mem",
+       "suck.num.from.txt", "summarise.r.datasets", "summary2",
+       "table2d", "textogram", "timeit", "toheader",
+       "tools_read_repositories", "top", "wait", "which.outlier")
 import(grDevices, graphics, stats, utils)
-importFrom(proftools, readProfileData, flatProfile)
 importFrom(tools, toHTML)
 importFrom(methods, is, showMethods)

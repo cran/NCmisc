@@ -4,8 +4,14 @@
 \alias{top}
 \title{Monitor CPU, RAM and Processes}
 \usage{
-top(CPU = !Table, RAM = !Table, Table = FALSE, procs = 20,
-  mem.key = NULL, cpu.key = NULL)
+top(
+  CPU = !Table,
+  RAM = !Table,
+  Table = FALSE,
+  procs = 20,
+  mem.key = NULL,
+  cpu.key = NULL
+)
 }
 \arguments{
 \item{CPU}{logical, whether to return overall CPU usage information}

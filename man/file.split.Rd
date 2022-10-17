@@ -4,8 +4,14 @@
 \alias{file.split}
 \title{Split a text file into multiple parts}
 \usage{
-file.split(fn, size = 50000, same.dir = FALSE, verbose = TRUE,
-  suf = "part", win = TRUE)
+file.split(
+  fn,
+  size = 50000,
+  same.dir = FALSE,
+  verbose = TRUE,
+  suf = "part",
+  win = TRUE
+)
 }
 \arguments{
 \item{fn}{character, file name of the text file to split, if the file is an imcompatible format

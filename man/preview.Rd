@@ -4,8 +4,13 @@
 \alias{preview}
 \title{Output variable states within functions during testing/debugging}
 \usage{
-preview(varlist, labels = NULL, counts = NULL, assume.char = FALSE,
-  prv.call = FALSE)
+preview(
+  varlist,
+  labels = NULL,
+  counts = NULL,
+  assume.char = FALSE,
+  prv.call = FALSE
+)
 }
 \arguments{
 \item{varlist}{character vector, the list of variable(s) to report, which will trigger

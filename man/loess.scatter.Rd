@@ -4,10 +4,23 @@
 \alias{loess.scatter}
 \title{Draw a scatterplot with a fit line}
 \usage{
-loess.scatter(x, y, file = NULL, loess = TRUE, span = 0.75,
-  scatter = plot, ..., ylim = NULL, return.vectors = FALSE,
-  fit.col = "red", fit.lwd = 2, fit.lty = "solid", fit.leg = TRUE,
-  fit.r2 = TRUE, fast.loess = FALSE)
+loess.scatter(
+  x,
+  y,
+  file = NULL,
+  loess = TRUE,
+  span = 0.75,
+  scatter = plot,
+  ...,
+  ylim = NULL,
+  return.vectors = FALSE,
+  fit.col = "red",
+  fit.lwd = 2,
+  fit.lty = "solid",
+  fit.leg = TRUE,
+  fit.r2 = TRUE,
+  fast.loess = FALSE
+)
 }
 \arguments{
 \item{x}{data for the horizontal axis (independent variable)}

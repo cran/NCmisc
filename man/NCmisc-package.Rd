@@ -15,8 +15,8 @@ a flexible Mode function, top function, simulation of correlated data, and more.
 \tabular{ll}{
 Package: \tab NCmisc\cr
 Type: \tab Package\cr
-Version: \tab 1.1.6\cr
-Date: \tab 2018-11-11\cr
+Version: \tab 1.2.0\cr
+Date: \tab 2022-10-14\cr
 License: \tab GPL (>= 2)\cr
 }
 A package of general purpose functions that might save time or help tidy up code. 
@@ -24,7 +24,7 @@ A package of general purpose functions that might save time or help tidy up code
  or have  more features (e.g, timeit and loop.tracker reduce an initialisation, 
  'during' and close three-line call structure, to a single function call.
 Also, some of these functions are useful for building packages and pipelines,
- for instance: Header(), to provide strong visual delineation between 
+ for instance: Header(), to provide strong visual deliniation between 
  procedures in console output, by an ascii bordered heading; loop.tracker()
 to track the progress of loops (called with only 1 line of code), with the
  option to periodically backup a key object during the loop; estimate.memory()
@@ -43,6 +43,7 @@ to track the progress of loops (called with only 1 line of code), with the
 List of key functions:
 \itemize{
  \item{\emph{check.linux.install }}{ Check whether a given system command is installed (e.g, bash)}
+ \item{\emph{comma.list }}{ Nicely format output lists with comma separation and length control}
  \item{\emph{comify }}{ Function to add commas for large numbers}
  \item{\emph{cor.with }}{ simulate a variable with a specified correlation to an existing variable}
  \item{\emph{Dim }}{ same as dim() function but works for more objects, including vectors }
@@ -58,6 +59,8 @@ List of key functions:
  \item{\emph{has.method }}{ Determine whether a function can be applied to an S4 class/object}
  \item{\emph{headl }}{ A good way to preview large lists}
  \item{\emph{Header }}{ Print heading text with a border}
+ \item{\emph{is.vec.logical }}{ Test whether vector is logical independent of type}
+ \item{\emph{is.vec.numeric }}{ Test whether vector is numeric independent of type}
  \item{\emph{list.functions.in.file }}{ Show all functions used in an R script file, by package}
  \item{\emph{list.to.env }}{ Inserts new variables in current environment from a named list}
  \item{\emph{loess.scatter }}{ Draw a scatterplot with a fit line}
@@ -65,6 +68,8 @@ List of key functions:
  \item{\emph{Mode }}{ Find the mode(s) of a vector}
  \item{\emph{must.use.package }}{ Do everything possible to load an R package}
  \item{\emph{narm }}{ Return an object with missing values removed}
+ \item{\emph{nearest.to }}{ Similar to base match function but picks nearest instead of exact match}
+ \item{\emph{Numerify }}{ Convert only suitable columns to numeric format in data.frame}
  \item{\emph{out.of }}{ Simplify outputting fractions/percentages}
  \item{\emph{p.to.Z }}{ Convert p-values to Z-scores}
  \item{\emph{packages.loaded }}{ quietly test whether packages are loaded without using require }
@@ -74,7 +79,9 @@ List of key functions:
  \item{\emph{preview }}{ same as prv, but enter arguments as strings}
  \item{\emph{prv.large }}{ tidy representation for large matrices/data.frames}
  \item{\emph{prv }}{ compact preview of objects (more complete than 'print')}
+ \item{\emph{replace.missing.df }}{ replace missing values in data.frame automatically }
  \item{\emph{Rfile.index }}{ Create an index file for an R function file}
+ \item{\emph{rmv.names }}{ Remove names from object }
  \item{\emph{rmv.spc }}{ Remove leading and trailing spaces (or other character)}
  \item{\emph{search.cran }}{ Search all CRAN packages for those containing keyword(s)}
  \item{\emph{sim.cor }}{ simulate a correlated dataset}
@@ -82,7 +89,9 @@ List of key functions:
  \item{\emph{spc }}{ Print a character a specified number of times}
  \item{\emph{standardize }}{ Convert a numeric vector to Z-scores}
  \item{\emph{Substitute }}{ multivariable version of substitute (base)}
+ \item{\emph{summary2 }}{ Extension of base:summary that adds SD, SE and keeps names fixed and cleaner}
  \item{\emph{summarise.r.datasets }}{ show and summarise all available example datasets }
+ \item{\emph{table2d }}{ Extension of base:table that forces fixed rows and columns}
  \item{\emph{textogram }}{ Make an ascii histogram in the console}
  \item{\emph{timeit }}{ Times an expression, with breakdown of time spent in functions}
  \item{\emph{toheader }}{ Return a string with each first letter of each word in upper case}
@@ -123,16 +132,17 @@ estimate.memory(matrix(rnorm(100),nrow=10))
 # a mode function (there isn't one included as part of base)
 Mode(c(1,2,3,3,4,4,4))
 # search for packages containing text, eg, 'misc'
-search.cran("misc",repos="http://cran.ma.imperial.ac.uk/") 
-# breakdown of processing time using proftools
-# not run:  timeit(wait(2,"s") ,total.time=TRUE) 
+search.cran("misc", repos="http://cran.ma.imperial.ac.uk/") 
 # simulate a correlated dataset
 corDat <- sim.cor(200,5)
 cor(corDat) # show correlation matrix
 prv(corDat) # show compact preview of matrix
 # Dim() versus dim()
 Dim(1:10); dim(1:10)
-# check whether package is loaded (when not required or dependency)
-packages.loaded("bigmemory")
+# find nearest match in a vector:
+nearest.to(1:100, 50.5)
 }
+
+
+
 

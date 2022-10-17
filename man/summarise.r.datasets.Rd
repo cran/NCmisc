@@ -4,8 +4,12 @@
 \alias{summarise.r.datasets}
 \title{Summarise the dimensions and type of available R example datasets}
 \usage{
-summarise.r.datasets(filter = FALSE, types = c("data.frame", "matrix"),
-  all = FALSE, ...)
+summarise.r.datasets(
+  filter = FALSE,
+  types = c("data.frame", "matrix"),
+  all = FALSE,
+  ...
+)
 }
 \arguments{
 \item{filter}{logical, whether to filter datasets by 'types'}

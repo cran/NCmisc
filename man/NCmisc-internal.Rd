@@ -17,6 +17,10 @@
 \alias{head2}
 \alias{tools_read_repositories}
 \alias{check.bio}
+\alias{is.col.numeric}
+\alias{i_numerify}
+\alias{is.missing}
+\alias{se.na}
 
 \title{Internal NCmisc Functions}
 \description{

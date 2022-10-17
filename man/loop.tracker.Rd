@@ -4,8 +4,15 @@
 \alias{loop.tracker}
 \title{Creates a progess bar within a loop}
 \usage{
-loop.tracker(cc, max, st.time = NULL, sav.obj = NULL, sav.fn = NA,
-  sav.freq = 10, unit = c("m", "s", "h")[1])
+loop.tracker(
+  cc,
+  max,
+  st.time = NULL,
+  sav.obj = NULL,
+  sav.fn = NA,
+  sav.freq = 10,
+  unit = c("m", "s", "h")[1]
+)
 }
 \arguments{
 \item{cc}{integer, current value of the loop counter}
@@ -50,7 +57,7 @@ for (cc in 1:max) {
   loop.tracker(cc,max, sav.obj=sums, sav.fn="temp.rda", sav.freq=5);
   if(cc==29) { warning("faked a crash at iteration 29!"); rm(sums); break }
 }
-cat("\\nloaded latest backup from iteration 28:",paste(load("temp.rda")),"\\n")
+cat("\nloaded latest backup from iteration 28:",paste(load("temp.rda")),"\n")
 print(sav.obj); unlink("temp.rda")
 }
 \author{

@@ -2,7 +2,8 @@
 % Please edit documentation in R/NCmisc.R
 \name{timeit}
 \alias{timeit}
-\title{Times an expression, with breakdown of time spent in each function}
+\title{Times an expression, with breakdown of time spent in each function
+!DEPRECATED October 14, 2022!}
 \usage{
 timeit(expr, suppressResult = F, total.time = TRUE)
 }

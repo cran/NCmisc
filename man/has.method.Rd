@@ -34,5 +34,5 @@ m.example <- as(matrix(rnorm(100),ncol=5),"dgeMatrix")
 has.method(t, m.example) # works with an instance of an object type too
 has.method("band", m.example) # band is a function for a 'denseMatrix' but not 'dgeMatrix'
 ## not run # has.method("notAFunction","GRanges") # should return error
-has.method("notAFunction","GRanges",TRUE) # should return FALSE and a warning
+## not run # has.method("notAFunction","GRanges",TRUE) # should return FALSE and a warning
 }

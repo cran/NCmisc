@@ -4,8 +4,13 @@
 \alias{estimate.memory}
 \title{Estimate the memory required for an object.}
 \usage{
-estimate.memory(dat, integer = FALSE, raw = FALSE, unit = c("gb", "mb",
-  "kb", "b"), add.unit = FALSE)
+estimate.memory(
+  dat,
+  integer = FALSE,
+  raw = FALSE,
+  unit = c("gb", "mb", "kb", "b"),
+  add.unit = FALSE
+)
 }
 \arguments{
 \item{dat}{either a vector/matrix/dataframe object, or else up to 10 dimensions of such an

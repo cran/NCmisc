@@ -4,8 +4,13 @@
 \alias{which.outlier}
 \title{Return vector indexes of statistical univariate outliers}
 \usage{
-which.outlier(x, thr = 2, method = c("sd", "iq", "pc"), high = TRUE,
-  low = TRUE)
+which.outlier(
+  x,
+  thr = 2,
+  method = c("sd", "iq", "pc"),
+  high = TRUE,
+  low = TRUE
+)
 }
 \arguments{
 \item{x}{numeric, or coercible, the vector to test for outliers}

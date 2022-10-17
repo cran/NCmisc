@@ -19,8 +19,8 @@ Returns 'char' X_i number of times for each element i of X.
 Useful for padding for alignment purposes.
 }
 \examples{
-cat(paste(spc(9),"123\\n"))
-cat(paste(spc(8),"1234\\n"))
+cat(paste(spc(9),"123\n"))
+cat(paste(spc(8),"1234\n"))
 spc(c(1:5),".")
 }
 \seealso{

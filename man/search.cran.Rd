@@ -22,10 +22,9 @@ purpose. No need for these packages to be installed or loaded.
 Further searching can be done using utils::RSiteSearch()
 }
 \examples{
-repos <- "http://cran.ma.imperial.ac.uk/" # OR: repos <- getOption("repos")
-# setRepositories(ind=1:2) # for the session will by default search bioconductor packages too
-search.cran("useful",repos)
-search.cran(c("hmm","markov","hidden"),repos=repos)
+## not run # repos <- "http://cran.ma.imperial.ac.uk/" # OR: repos <- getOption("repos")
+## not run # search.cran("draw")
+## not run # search.cran(c("hmm", "markov", "hidden"))
 }
 \author{
 Nicholas Cooper \email{njcooper@gmx.co.uk}

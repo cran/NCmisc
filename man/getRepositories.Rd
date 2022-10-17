@@ -33,8 +33,10 @@ expand the search space of the function search.cran() to include bioconductor pa
 repos <- "http://cran.ma.imperial.ac.uk/" # OR: repos <- getOption("repos")
 getRepositories(table=TRUE) # shows all available
 getRepositories(2:5,FALSE) # returns index for all bioconductor repositories (on my system at least)
-search.cran("genoset",repos=getRepositories(1)) # does not find this bioconductor package on CRAN
-search.cran("genoset",repos=getRepositories()) # should now, because all repositories are used
+# does not find this bioconductor package on CRAN
+## not run # search.cran("genoset",repos=getRepositories(1))
+# should now, because all repositories are used
+## not run # search.cran("genoset",repos=getRepositories())
 }
 \author{
 Nicholas Cooper \email{njcooper@gmx.co.uk}

@@ -4,21 +4,23 @@
 \alias{must.use.package}
 \title{Do everything possible to load an R package.}
 \usage{
-must.use.package(pcknms, bioC = FALSE, ask = FALSE, reload = FALSE,
-  avail = FALSE, quietly = FALSE)
+must.use.package(
+  pcknms,
+  ask = FALSE,
+  reload = FALSE,
+  avail = FALSE,
+  quietly = FALSE
+)
 }
 \arguments{
-\item{pcknms}{list of packages to load/install, shouldn't mix 
-bioconductor/CRAN in one call}
-
-\item{bioC}{whether the listed packages are from bioconductor}
+\item{pcknms}{list of packages to load/install}
 
 \item{ask}{whether to get the user's permission to install a
 required package, or just go ahead and do it}
 
 \item{reload}{indicates to reload the package even if loaded}
 
-\item{avail}{when bioC=FALSE, see whether pcknms are in the list 
+\item{avail}{see whether pcknms are in the list
 of available CRAN packages}
 
 \item{quietly}{passed to library/require, display installation
@@ -29,8 +31,8 @@ nothing, simply loads the packages specified if possible
 }
 \description{
 Like 'require()' except it will attempt to install a package if
-necessary, and will also deal automatically with bioconductor
-packages too. Useful if you wish to share code with people who
+necessary. Installation of bioconductor packages is deprecated.
+Useful if you wish to share code with people who
 may not have the same libraries as you, you can include a call to
 this function which will simply load the library if present, or
 else install, then load, if they do not have it.
@@ -38,9 +40,8 @@ else install, then load, if they do not have it.
 \examples{
 # not run : run if you are ok to install/already have these packages
 # must.use.package(c("MASS","nlme","lme4"),ask=FALSE)
-# must.use.package("limma",bioC=TRUE)
 # search() # show packages have loaded, then detach them again:
-# sapply(paste("package",c("limma","MASS","nlme","lme4"),sep=":"),detach,character.only=TRUE)
+# sapply(paste("package",c("MASS","nlme","lme4"),sep=":"),detach,character.only=TRUE)
 }
 \author{
 Nicholas Cooper \email{njcooper@gmx.co.uk}

@@ -4,9 +4,18 @@
 \alias{prv.large}
 \title{Tidy display function for matrix objects}
 \usage{
-prv.large(largeMat, rows = 3, cols = 2, digits = 4, rL = "Row#",
-  rlab = "rownames", clab = "colnames", rownums = T, ret = FALSE,
-  warn = TRUE)
+prv.large(
+  largeMat,
+  rows = 3,
+  cols = 2,
+  digits = 4,
+  rL = "Row#",
+  rlab = "rownames",
+  clab = "colnames",
+  rownums = T,
+  ret = FALSE,
+  warn = TRUE
+)
 }
 \arguments{
 \item{largeMat}{a matrix}
