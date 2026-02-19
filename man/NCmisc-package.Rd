@@ -41,7 +41,7 @@ to track the progress of loops (called with only 1 line of code), with the
  gives a list of all available datasets and their structure and dimensionality.
 
 List of key functions:
-\itemize{
+\describe{
  \item{\emph{check.linux.install }}{ Check whether a given system command is installed (e.g, bash)}
  \item{\emph{comma.list }}{ Nicely format output lists with comma separation and length control}
  \item{\emph{comify }}{ Function to add commas for large numbers}

@@ -1,11 +1,11 @@
-44239bf8729725943145946e0024fdcc *DESCRIPTION
+1ee5c246cc0c83d264ff62d5612c4e92 *DESCRIPTION
 49dd628997417cd96c5b5da4adeba6fd *NAMESPACE
 9f6bb2ea58df8ee04618d9f7ad935e5e *R/NCmisc.R
 285fddfc90ada51b49ab35b6a0ddcb93 *man/Dim.Rd
 8f5c092920dc1fd2ec5fd7745a40b988 *man/Header.Rd
 e61572369edaab0efb36c89a23546e3f *man/Mode.Rd
 50587c921207849d24d3bc00f2cc8d12 *man/NCmisc-internal.Rd
-30b2718470f3b84da48187c073edc56d *man/NCmisc-package.Rd
+5ac0238a317afb64835320f59f484d10 *man/NCmisc-package.Rd
 d4a3b7f79ca328da394c7434a21652df *man/Numerify.Rd
 095847b7d3141fca9aaa6084a72247f0 *man/Rfile.index.Rd
 e0386ce6473d5b9e67d8c479cdb8c3a5 *man/Substitute.Rd
